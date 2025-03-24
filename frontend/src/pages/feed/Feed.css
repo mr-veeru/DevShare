@@ -1,0 +1,306 @@
+.main-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.feed-header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.feed-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feed-title svg {
+  margin-right: 12px;
+  color: var(--primary);
+}
+
+.feed-subtitle {
+  font-size: 16px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-container {
+  margin-bottom: 20px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  font-size: 18px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 14px 14px 14px 48px;
+  border: 1px solid var(--border-medium);
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.filter-container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 8px;
+  margin-bottom: 24px;
+  align-items: center;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) transparent;
+}
+
+.filter-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filter-container::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 4px;
+}
+
+.filter-button {
+  background-color: var(--bg-secondary);
+  border: none;
+  border-radius: 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  white-space: nowrap;
+}
+
+.filter-button:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.filter-button.active {
+  background-color: var(--primary);
+  color: white;
+}
+
+.posts-container {
+  position: relative;
+  min-height: 200px;
+}
+
+.no-posts-found {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.no-posts-found svg {
+  color: var(--gray-300);
+  margin-bottom: 16px;
+}
+
+.no-posts-found h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.no-posts-found p {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.no-posts-found button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.no-posts-found button:hover {
+  background-color: var(--primary-dark);
+}
+
+.feed-error-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--danger-50);
+  color: var(--danger);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.feed-error-message svg {
+  font-size: 20px;
+}
+
+.feed-error-message button {
+  background-color: white;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all 0.2s;
+}
+
+.feed-error-message button:hover {
+  background-color: var(--danger);
+  color: white;
+}
+
+.search-clear-button {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.search-clear-button:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.search-results-count {
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 8px 12px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  display: inline-block;
+}
+
+.search-results-count strong {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.filter-clear-button {
+  background-color: var(--danger-50);
+  border: none;
+  border-radius: var(--radius-full);
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+
+.filter-clear-button:hover {
+  background-color: var(--danger-100);
+}
+
+.loading-more {
+  text-align: center;
+  padding: 20px 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    padding: 16px;
+  }
+  
+  .feed-title {
+    font-size: 24px;
+  }
+  
+  .feed-subtitle {
+    font-size: 14px;
+  }
+  
+  .search-input {
+    padding: 12px 12px 12px 40px;
+    font-size: 14px;
+  }
+  
+  .filter-button {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-container {
+    /* No additional styles needed */
+  }
+  
+  .filter-container::-webkit-scrollbar {
+    /* No additional styles needed */
+  }
+  
+  .filter-container::-webkit-scrollbar-thumb {
+    /* No additional styles needed */
+  }
+  
+  .filter-button {
+    /* No additional styles needed */
+  }
+  
+  .filter-clear-button {
+    position: relative;
+    margin-left: 0;
+  }
+}

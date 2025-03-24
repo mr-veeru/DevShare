@@ -1,0 +1,473 @@
+/**
+ * Navbar Component Styles
+ * Styles for the responsive navigation bar with mobile menu
+ * and profile dropdown functionality.
+ */
+
+/* CSS Variables */
+:root {
+  /* Colors */
+  --primary-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+  --hover-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
+  --nav-height: 70px;
+  --nav-height-mobile: 60px;
+  --bottom-nav-height: 60px;
+  --primary: #3498db;
+  --primary-blue: #0095f6;
+  --primary-hover: #1aa6ff;
+  --danger: #e74c3c;
+  
+  /* Text colors */
+  --text-primary: #262626;
+  --text-secondary: #737373;
+  --text-tertiary: #8e8e8e;
+  
+  /* Backgrounds */
+  --nav-bg: #ffffff;
+  --bg-primary: white;
+  --bg-secondary: #f9fafb;
+  --bg-hover: rgba(240, 242, 245, 0.8);
+  --bg-active: rgba(231, 243, 255, 0.7);
+  
+  /* Borders */
+  --border-color: #dbdbdb;
+  --border-light: #e1e4e8;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.15);
+  
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  
+  /* Transitions */
+  --transition-normal: all 0.2s ease;
+  
+  /* Badge gradient */
+  --badge-gradient: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Navbar Container */
+.navbar {
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border-color);
+  height: var(--nav-height);
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo Styles */
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  transition: transform 0.3s ease;
+  padding: 0.5rem 0;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
+}
+
+.navbar-logo::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary-gradient);
+  transition: width 0.3s ease;
+}
+
+.navbar-logo:hover::after {
+  width: 100%;
+}
+
+.logo-icon {
+  color: var(--primary-blue);
+  font-size: 1.75rem;
+  transform: rotate(-10deg);
+  transition: transform 0.3s ease;
+}
+
+.navbar-logo:hover .logo-icon {
+  transform: rotate(0deg) scale(1.1);
+}
+
+/* Navigation Content */
+.navbar-content {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-right: 1rem;
+  height: 100%;
+}
+
+/* Common styles for navigation buttons */
+.nav-link, .bottom-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nav-link {
+  font-size: 0.95rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 8px;
+  height: 2.5rem;
+}
+
+.nav-link:hover {
+  background-color: var(--bg-hover);
+  color: var(--primary-blue);
+  transform: translateY(-1px);
+}
+
+.nav-link.active {
+  color: var(--primary-blue);
+  background-color: var(--bg-active);
+  font-weight: 600;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: var(--primary-gradient);
+  border-radius: 3px;
+}
+
+.nav-link svg, .bottom-nav-item svg {
+  transition: transform 0.2s ease;
+}
+
+.nav-link:hover svg, .bottom-nav-item:hover svg {
+  transform: scale(1.1);
+}
+
+/* Notification Styles */
+.notification-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Badge styles - shared between nav-badge and bottom-nav-badge */
+.nav-badge, .bottom-nav-badge {
+  position: absolute;
+  background: var(--badge-gradient);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 1.5s infinite;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  border-radius: 9px;
+}
+
+.nav-badge {
+  top: -8px;
+  right: -1px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+}
+
+/* Profile Menu */
+.profile-menu-container {
+  position: relative;
+  margin-left: 0.5rem;
+}
+
+.avatar-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  padding: 0.25rem;
+  overflow: hidden;
+}
+
+.avatar-button:hover {
+  transform: scale(1.05);
+  /* box-shadow: 0 0 0 2px rgba(0, 149, 246, 0.3); */
+}
+
+.letter-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Common dropdown styles for both desktop and mobile */
+.profile-dropdown, .mobile-profile-dropdown {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  width: 220px;
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  z-index: 1002;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  animation: slideDown 0.2s ease;
+}
+
+.mobile-profile-dropdown {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  animation: slideUp 0.2s ease-out;
+}
+
+/* Common dropdown header styles */
+.dropdown-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+  background: linear-gradient(to right, rgba(240, 242, 245, 0.5), rgba(255, 255, 255, 0.5));
+}
+
+.dropdown-header span {
+  display: block;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+}
+
+.dropdown-header small {
+  color: var(--text-tertiary);
+  font-size: 0.825rem;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Common dropdown item styles */
+.dropdown-item {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.dropdown-item:hover {
+  background: var(--bg-hover);
+}
+
+.dropdown-item svg {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.dropdown-item:hover svg {
+  color: var(--primary-blue);
+}
+
+.dropdown-item:last-child {
+  color: var(--danger);
+}
+
+/* Mobile-specific wrapper for profile menu */
+.mobile-profile-container {
+  position: relative;
+  z-index: 1001;
+}
+
+/* Overlay when mobile dropdown is open */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+  touch-action: auto;
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mobile Menu */
+.mobile-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-toggle:hover {
+  background-color: var(--bg-hover);
+  color: var(--primary-blue);
+}
+
+/* Mobile Bottom Navigation Bar */
+.mobile-bottom-navbar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-light);
+  padding: var(--space-2);
+  z-index: 1000;
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-navbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    color: var(--text-secondary);
+    background: none;
+    border: none;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color var(--transition-normal);
+  }
+
+  .bottom-nav-item span {
+    font-size: 0.7rem;
+  }
+
+  .bottom-nav-item.active {
+    color: var(--primary);
+  }
+
+  .bottom-nav-item svg {
+    font-size: 1.2rem;
+  }
+
+  /* Hide desktop navbar on mobile */
+  .navbar-content {
+    display: none;
+  }
+}
+
+/* Main content container spacing */
+.main-container {
+  margin-top: var(--nav-height);
+  padding: 20px;
+}
+

@@ -1,0 +1,64 @@
+/**
+ * Message Component Styles
+ * Styles for success and error notification messages
+ */
+
+.message {
+  width: 100%;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+}
+
+.message-icon {
+  margin-right: 12px;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.message-content {
+  flex-grow: 1;
+}
+
+.message-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  padding: 4px;
+  margin-left: 10px;
+}
+
+.message-close:hover {
+  opacity: 1;
+}
+
+.message-success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border-left: 4px solid #10b981;
+}
+
+.message-error {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-left: 4px solid #ef4444;
+}
+
+.message-info {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border-left: 4px solid #3b82f6;
+}
+
+.message-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-left: 4px solid #f59e0b;
+} 

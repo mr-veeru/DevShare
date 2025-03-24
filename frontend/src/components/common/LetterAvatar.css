@@ -1,0 +1,89 @@
+/**
+ * Letter Avatar Component Styles
+ * Defines styles for user avatar initials display
+ */
+
+/* Base avatar styles */
+.letter-avatar {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: transform var(--transition-fast);
+  color: #fff;
+  margin-right: var(--space-2);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Size variants */
+.letter-avatar.small {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+
+.letter-avatar.medium {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.letter-avatar.large {
+  width: 64px;
+  height: 64px;
+  font-size: 24px;
+}
+
+/* Color variants - vibrant, modern color palette */
+.letter-avatar.color-0 {
+  background: linear-gradient(135deg, #4a6cf7, #2541b2);
+}
+
+.letter-avatar.color-1 {
+  background: linear-gradient(135deg, #ee6c4d, #e76f51);
+}
+
+.letter-avatar.color-2 {
+  background: linear-gradient(135deg, #06d6a0, #1b9aaa);
+}
+
+.letter-avatar.color-3 {
+  background: linear-gradient(135deg, #ff9f1c, #ffbf69);
+}
+
+.letter-avatar.color-4 {
+  background: linear-gradient(135deg, #8338ec, #af73ff);
+}
+
+/* Specific positioning contexts */
+.post-header .letter-avatar {
+  margin-right: var(--space-2);
+}
+
+.comment-author .letter-avatar {
+  margin-right: var(--space-2);
+}
+
+/* Animation effect on hover */
+.letter-avatar:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .letter-avatar.medium {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .letter-avatar.small {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+} 

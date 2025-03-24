@@ -1,0 +1,890 @@
+/*
+ * Post Component Styles
+ * 
+ * CSS organization:
+ * 1. Error Handling
+ * 2. Post Card Layout
+ * 3. Post Header & User Info
+ * 4. Post Content
+ * 5. Action Buttons
+ * 6. Share Options
+ * 7. Animations
+ * 8. Responsive Design
+ * 
+ * Design system:
+ * - Uses CSS variables for consistent theming
+ * - Mobile-first responsive design
+ * - Accessible focus states
+ * - Smooth transitions and animations
+ */
+
+/* Core Post Styles */
+.post-error-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--danger-50);
+  color: var(--danger);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.post-error-message button {
+  background: none;
+  border: none;
+  color: var(--error-text-color, #d32f2f);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0 5px;
+}
+
+.post-error-message button:hover {
+  opacity: 0.8;
+}
+
+/* Add a modern card design with better shadows and hover effects */
+.post {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--border-light);
+}
+
+.post:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Improved header styling with better spacing */
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.post-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.username-link {
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 1rem;
+  gap: var(--space-2);
+  transition: color var(--transition-normal);
+}
+
+.username-link:hover {
+  color: var(--primary);
+}
+
+.username-link .user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.username-link .username {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.post-date {
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+/* Enhanced options menu styling */
+.post-options {
+  position: relative;
+}
+
+.options-button {
+  background: none;
+  border: none;
+  color: var(--gray-500);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.options-button:hover {
+  color: var(--text-primary);
+  background-color: var(--gray-100);
+}
+
+.options-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  overflow: hidden;
+  min-width: 120px;
+}
+
+.options-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: background-color 0.2s;
+}
+
+.options-dropdown button:hover {
+  background-color: var(--bg-hover);
+}
+
+.options-dropdown button:first-child {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.options-dropdown button:last-child {
+  color: var(--danger);
+}
+
+.options-dropdown button:last-child:hover {
+  background-color: var(--danger-light, #FEE2E2);
+}
+
+/* Improved content styling */
+.post-content {
+  margin-bottom: var(--space-4);
+}
+
+.post-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: var(--space-3);
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.post-description {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Enhanced skills section */
+.skills-container {
+  margin-bottom: var(--space-4);
+}
+
+.skills-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.skill-tag {
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  transition: all var(--transition-normal);
+}
+
+.skill-tag:hover {
+  background-color: var(--primary-200);
+  transform: translateY(-2px);
+}
+
+/* GitHub link container with proper spacing */
+.github-link-container {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+/* Improved GitHub link */
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  background-color: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  border-radius: var(--radius-md);
+  color: #24292e;
+  font-size: 0.9rem;
+  text-decoration: none;
+  gap: var(--space-2);
+  transition: all var(--transition-normal);
+  width: fit-content;
+}
+
+.github-link:hover {
+  background-color: #ebedf0;
+  border-color: #dde1e5;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Enhanced action buttons */
+.post-actions {
+  display: flex;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  margin-top: var(--space-4);
+  border-top: 1px solid var(--border-light);
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  gap: var(--space-2);
+}
+
+.action-button:hover {
+  background-color: var(--gray-100);
+  color: var(--text-primary);
+}
+
+.action-button.liked {
+  color: var(--danger);
+}
+
+.action-button.liked:hover {
+  background-color: var(--danger-light);
+}
+
+/* Improved edit form */
+.edit-form {
+  background-color: var(--bg-secondary, #f9fafb);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--border-light);
+}
+
+.edit-form .form-group {
+  margin-bottom: var(--space-4);
+}
+
+.edit-form .form-group label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.edit-title, 
+.edit-description,
+.edit-skills {
+  font-size: 1rem;
+  padding: var(--space-3);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  width: 100%;
+  transition: all var(--transition-normal);
+  background-color: var(--bg-primary);
+}
+
+.edit-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.edit-description {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.edit-skills {
+  font-size: 0.95rem;
+}
+
+.edit-title:focus,
+.edit-description:focus,
+.edit-skills:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.edit-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+}
+
+.save-button:hover {
+  background-color: var(--primary-dark, #0056b3);
+}
+
+.cancel-button {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.cancel-button:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Improved share options */
+.share-container {
+  position: relative;
+  margin-left: auto;
+}
+
+.share-options {
+  position: absolute;
+  right: 0;
+  bottom: 40px;
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-1);
+  z-index: var(--z-dropdown);
+  width: 200px;
+  border: 1px solid var(--border-light);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.share-options button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  gap: var(--space-3);
+}
+
+.share-options button:hover {
+  background-color: var(--gray-100);
+}
+
+.share-options button svg {
+  color: var(--text-secondary);
+}
+
+/* Animation for fade-in elements */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .post {
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+  
+  .post-title {
+    font-size: 1.1rem;
+  }
+  
+  .action-button {
+    padding: var(--space-2);
+    font-size: 0.85rem;
+  }
+  
+  .share-options {
+    width: 180px;
+  }
+}
+
+/* Add styling for the highlighting of search results */
+mark {
+  background-color: rgba(79, 70, 229, 0.2);
+  padding: 0 2px;
+  border-radius: 2px;
+  color: var(--primary-dark);
+  font-weight: 500;
+}
+
+/* 8. Responsive Design */
+@media (max-width: 480px) {
+  .post-user-avatar {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .post-username {
+    font-size: 0.9rem;
+  }
+  
+  .post-content {
+    padding: 1rem;
+  }
+  
+  .post-title {
+    font-size: 1.1rem;
+  }
+
+  .post-actions {
+    padding: 8px;
+  }
+  
+  .post-actions-left {
+    gap: 8px;
+  }
+
+  .like-button, 
+  .comment-button, 
+  .share-button {
+    padding: 6px;
+  }
+
+  .heart-icon, 
+  .comment-icon, 
+  .share-icon {
+    font-size: 1.1rem;
+  }
+
+  .action-count {
+    font-size: 0.85rem;
+  }
+
+  .github-link {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  .post-description {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-height: none !important;
+    overflow: visible;
+    white-space: normal !important;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+/* Improve touch targets on mobile */
+@media (hover: none) and (pointer: coarse) {
+  .like-button, 
+  .comment-button, 
+  .share-button {
+    min-height: 40px;
+    padding: 8px;
+  }
+
+  .github-link {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Share Options */
+.share-options {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  margin-top: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+.share-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: none;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  margin: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #495057;
+}
+
+.share-option:hover {
+  background-color: #e9ecef;
+  transform: translateY(-2px);
+}
+
+/* Date formatting */
+.post-date {
+  color: #6c757d;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.delete-post-button {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  position: relative;
+  width: 32px;
+  height: 32px;
+}
+
+.delete-post-button:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
+}
+
+.delete-post-button:active {
+  transform: scale(0.95);
+}
+
+.delete-post-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
+}
+
+.delete-post-button svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+.delete-post-button:hover svg {
+  transform: scale(1.1);
+}
+
+/* Post Actions Dropdown */
+.post-actions-dropdown {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+.dropdown-toggle {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown-toggle:hover {
+  color: #333;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  min-width: 120px;
+  z-index: 1001;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* Edit Form */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+textarea.edit-input {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.edit-actions button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dropdown-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 300px;
+  }
+
+  .edit-form {
+    padding: 12px;
+  }
+
+  .edit-actions {
+    flex-direction: column;
+  }
+
+  .edit-actions button {
+    width: 100%;
+  }
+}
+
+/* Add mobile-specific adjustments */
+@media screen and (max-width: 768px) {
+  .post-actions-dropdown {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: auto;
+    min-width: 150px;
+  }
+
+  .dropdown-item {
+    padding: 12px 16px;
+  }
+}
+
+/* Improved dropdown menu styles */
+.comment-menu {
+  position: relative;
+}
+
+.menu-button {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.menu-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  min-width: 120px;
+  overflow: hidden;
+}
+
+.menu-dropdown button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 10px 15px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.menu-dropdown button svg {
+  margin-right: 8px;
+}
+
+.menu-dropdown button:hover {
+  background-color: #f8f9fa;
+}
+
+/* Add highlighting styles for search results */
+.highlighted-text {
+  background-color: rgba(255, 255, 0, 0.4);
+  padding: 0 2px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+/* Highlight search matches */
+mark {
+  background-color: #fff3cd;
+  padding: 2px 0;
+  border-radius: 2px;
+}
+
+/* Read more button */
+.read-more-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: var(--space-1) var(--space-2);
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  transition: all var(--transition-normal);
+}
+
+.read-more-btn:hover {
+  background-color: var(--primary-100);
+  color: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.read-more-btn svg {
+  font-size: 0.8rem;
+}
+
+.post-description {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--space-2);
+  font-size: 1rem;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+/* Highlight for search terms */
+.search-highlight {
+  background-color: rgba(255, 217, 102, 0.6);
+  color: #000;
+  font-weight: 500;
+  padding: 0 2px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(255, 217, 102, 0.3);
+  animation: highlightPulse 2s ease-in-out 1;
+}
+
+@keyframes highlightPulse {
+  0% { background-color: rgba(255, 217, 102, 0.9); }
+  50% { background-color: rgba(255, 217, 102, 0.6); }
+  100% { background-color: rgba(255, 217, 102, 0.6); }
+} 
