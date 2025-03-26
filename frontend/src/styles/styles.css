@@ -21,39 +21,12 @@
   --primary: #3a86ff;
   --primary-dark: #2563eb;
   --primary-light: #60a5fa;
-  --primary-50: #eff6ff;
-  --primary-100: #dbeafe;
-  --primary-200: #bfdbfe;
-  --primary-300: #93c5fd;
-  --primary-400: #60a5fa;
-  --primary-500: #3b82f6;
-  --primary-600: #2563eb;
-  --primary-700: #1d4ed8;
-  --primary-800: #1e40af;
-  --primary-900: #1e3a8a;
   
   --success: #10b981;
-  --success-50: #ecfdf5;
-  --success-100: #d1fae5;
-  --success-200: #a7f3d0;
-  --success-700: #047857;
-  
   --warning: #f59e0b;
-  --warning-50: #fffbeb;
-  --warning-100: #fef3c7;
-  --warning-700: #b45309;
-  
   --danger: #ef4444;
-  --danger-50: #fef2f2;
-  --danger-100: #fee2e2;
-  --danger-200: #fecaca;
-  --danger-700: #b91c1c;
   --danger-dark: #dc2626;
-  
   --info: #3b82f6;
-  --info-50: #eff6ff;
-  --info-100: #dbeafe;
-  --info-700: #1d4ed8;
   
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
@@ -93,8 +66,6 @@
   --space-6: 2rem;     /* 32px */
   --space-8: 3rem;     /* 48px */
   --space-10: 4rem;    /* 64px */
-  --space-12: 5rem;    /* 80px */
-  --space-16: 8rem;    /* 128px */
   
   /* Border Radius */
   --radius-sm: 0.125rem;  /* 2px */
@@ -107,7 +78,6 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   
   /* Transitions */
   --transition-fast: 0.15s ease;
@@ -207,8 +177,9 @@ a:hover {
 }
 
 /* Root containers */
-.app-container {
-  max-width: 1280px;
+.container {
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--space-4);
 }
@@ -308,37 +279,6 @@ a:hover {
   box-shadow: 0 0 0 3px var(--primary-light);
 }
 
-/* Badges */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1;
-}
-
-.badge-primary {
-  background-color: var(--primary-100);
-  color: var(--primary-700);
-}
-
-.badge-secondary {
-  background-color: var(--gray-200);
-  color: var(--gray-700);
-}
-
-.badge-success {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: var(--secondary);
-}
-
-.badge-danger {
-  background-color: var(--danger-100);
-  color: var(--danger-700);
-}
-
 /* Utilities */
 .text-center {
   text-align: center;
@@ -388,39 +328,16 @@ a:hover {
   height: 100%;
 }
 
-.p-4 {
-  padding: var(--space-4);
-}
+/* Spacing Utilities */
+.m-2 { margin: var(--space-2); }
+.m-4 { margin: var(--space-4); }
+.mt-4 { margin-top: var(--space-4); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-8 { margin-bottom: var(--space-8); }
 
-.py-2 {
-  padding-top: var(--space-2);
-  padding-bottom: var(--space-2);
-}
-
-.px-4 {
-  padding-left: var(--space-4);
-  padding-right: var(--space-4);
-}
-
-.m-2 {
-  margin: var(--space-2);
-}
-
-.m-4 {
-  margin: var(--space-4);
-}
-
-.mt-4 {
-  margin-top: var(--space-4);
-}
-
-.mb-4 {
-  margin-bottom: var(--space-4);
-}
-
-.mb-8 {
-  margin-bottom: var(--space-8);
-}
+.p-4 { padding: var(--space-4); }
+.py-2 { padding: var(--space-2) 0; }
+.px-4 { padding: 0 var(--space-4); }
 
 /* Main container with proper spacing */
 .main-container {
@@ -436,7 +353,7 @@ a:hover {
     font-size: 14px;
   }
   
-  .app-container {
+  .container {
     padding: 0 var(--space-3);
   }
   
@@ -445,9 +362,8 @@ a:hover {
   }
   
   .main-container {
-    margin-top: 60px;
-    margin-bottom: var(--bottom-nav-height);
-    padding-bottom: 2rem;
+    margin: 60px auto var(--bottom-nav-height);
+    padding: 1.5rem 1rem 2rem;
     min-height: calc(100vh - 60px - var(--bottom-nav-height));
   }
 }
@@ -463,11 +379,6 @@ a:hover {
   
   h2 {
     font-size: 1.75rem;
-  }
-  
-  .main-container {
-    padding: 1rem;
-    padding-bottom: 2rem;
   }
 }
 
@@ -501,15 +412,6 @@ a:hover {
               box-shadow 0.3s ease;
 }
 
-/* Page Layout and Containers */
-body {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  line-height: 1.5;
-  min-height: 100vh;
-}
-
 /* Ensure content doesn't get hidden under fixed mobile navbar */
 .profile-page, 
 .feed-container, 
@@ -519,12 +421,4 @@ body {
 .notifications-page,
 .auth-container {
   padding-bottom: 80px; /* Space for mobile navbar */
-}
-
-/* Container */
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--space-4);
 } 

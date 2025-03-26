@@ -5,9 +5,10 @@ reading, updating and deleting comments, as well as likes and replies functional
 """
 from flask import Blueprint, request, jsonify
 from firebase_admin import firestore
-from datetime import datetime
 from ..utils.auth import verify_token
-from ..services.firebase import db
+from ..services.firebase import db, query_documents, create_document, get_document, update_document, delete_document
+from ..utils.user import create_notification, delete_notifications
+from firebase_admin import auth
 
 comments_bp = Blueprint('comments', __name__)
 
@@ -33,22 +34,8 @@ def post_comments(post_id):
 
     if request.method == 'GET':
         try:
-            comments_ref = db.collection('comments').where('postId', '==', post_id)
-            comments = comments_ref.stream()
-            
-            comments_list = []
-            for comment in comments:
-                comment_data = comment.to_dict()
-                comment_data['id'] = comment.id
-                
-                if 'createdAt' in comment_data:
-                    created_at = comment_data['createdAt']
-                    if isinstance(created_at, datetime):
-                        comment_data['createdAt'] = created_at.isoformat()
-                
-                comments_list.append(comment_data)
-            
-            return jsonify(comments_list)
+            comments = query_documents('comments', [('postId', '==', post_id)])
+            return jsonify(comments)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
@@ -56,16 +43,36 @@ def post_comments(post_id):
         try:
             comment_data = request.json
             comment_data['userId'] = user['uid']
+            comment_data['username'] = user.get('name', 'Anonymous')  # Use authenticated user's name
             comment_data['postId'] = post_id
             comment_data['createdAt'] = firestore.SERVER_TIMESTAMP
             
-            doc_ref = db.collection('comments').document()
-            doc_ref.set(comment_data)
+            # Create the comment
+            doc_id = create_document('comments', comment_data)
+            if not doc_id:
+                return jsonify({"error": "Failed to create comment"}), 500
             
-            # Get the created comment with its ID
-            comment = doc_ref.get()
-            response_data = comment.to_dict()
-            response_data['id'] = comment.id
+            # Get the created comment
+            response_data = get_document('comments', doc_id)
+            
+            # Create a notification for the post owner (if not self-comment)
+            user_id = user['uid']
+            post_data = get_document('posts', post_id)
+            
+            if post_data:
+                post_owner_id = post_data.get('userId')
+                
+                # Only create notification if commenter is not post owner
+                if post_owner_id and post_owner_id != user_id:
+                    create_notification(
+                        recipient_id=post_owner_id,
+                        sender_id=user_id,
+                        post_id=post_id,
+                        post_title=post_data.get('title'),
+                        comment_id=doc_id,
+                        notification_type='comment',
+                        content=comment_data.get('text')
+                    )
             
             return jsonify(response_data), 201
         except Exception as e:
@@ -90,29 +97,82 @@ def comment_operations(comment_id):
     user = verify_token(request)
     if not user:
         return jsonify({"error": "Unauthorized"}), 401
-
+    
+    user_id = user['uid']
+    
+    # Get comment to verify it exists and belongs to the user
     comment_ref = db.collection('comments').document(comment_id)
     comment = comment_ref.get()
-
+    
     if not comment.exists:
         return jsonify({"error": "Comment not found"}), 404
-
+    
     comment_data = comment.to_dict()
-    if comment_data['userId'] != user['uid']:
+    if comment_data['userId'] != user_id:
         return jsonify({"error": "Unauthorized"}), 403
-
+    
     if request.method == 'PUT':
         try:
             update_data = request.json
-            comment_ref.update(update_data)
-            return jsonify({"message": "Comment updated successfully"})
+            success = update_document('comments', comment_id, update_data)
+            if success:
+                return jsonify({"message": "Comment updated successfully"})
+            return jsonify({"error": "Failed to update comment"}), 500
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
     elif request.method == 'DELETE':
         try:
-            comment_ref.delete()
-            return jsonify({"message": "Comment deleted successfully"})
+            # Start a batch operation
+            batch = db.batch()
+            
+            # Mark the comment as deleted
+            batch.update(comment_ref, {
+                'deleted': True,
+                'deletedAt': firestore.SERVER_TIMESTAMP
+            })
+            
+            # Delete all notifications related to this comment
+            delete_notifications(comment_id=comment_id)
+            
+            # Get all replies for this comment
+            replies = query_documents('comments', [('parentId', '==', comment_id)])
+            
+            # Mark all replies as deleted and delete their notifications
+            for reply in replies:
+                reply_ref = db.collection('comments').document(reply['id'])
+                batch.update(reply_ref, {
+                    'deleted': True,
+                    'deletedAt': firestore.SERVER_TIMESTAMP
+                })
+                
+                # Delete notifications for each reply
+                delete_notifications(comment_id=reply['id'])
+                
+                # Delete likes for each reply
+                likes = query_documents('commentLikes', [('commentId', '==', reply['id'])])
+                for like in likes:
+                    batch.delete(db.collection('commentLikes').document(like['id']))
+                    # Delete like notifications
+                    delete_notifications(
+                        comment_id=reply['id'],
+                        notification_type='comment_like'
+                    )
+            
+            # Delete likes for the main comment
+            comment_likes = query_documents('commentLikes', [('commentId', '==', comment_id)])
+            for like in comment_likes:
+                batch.delete(db.collection('commentLikes').document(like['id']))
+                # Delete like notifications
+                delete_notifications(
+                    comment_id=comment_id,
+                    notification_type='comment_like'
+                )
+            
+            # Commit all updates
+            batch.commit()
+            
+            return jsonify({"message": "Comment and all replies deleted successfully"})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
@@ -141,39 +201,20 @@ def comment_likes(comment_id):
     user_id = user['uid']
     
     # Get comment to verify it exists
-    comment_ref = db.collection('comments').document(comment_id)
-    comment = comment_ref.get()
-    if not comment.exists:
+    comment_data = get_document('comments', comment_id)
+    if not comment_data:
         return jsonify({"error": "Comment not found"}), 404
-    
-    # Reference to the user's like for this comment
-    like_ref = db.collection('commentLikes').where('commentId', '==', comment_id).where('userId', '==', user_id)
     
     if request.method == 'GET':
         try:
             # Get all likes for the comment
-            likes_ref = db.collection('commentLikes').where('commentId', '==', comment_id)
-            likes = likes_ref.stream()
-            
-            likes_list = []
-            user_liked = False
-            like_count = 0
-            
-            for like in likes:
-                like_data = like.to_dict()
-                like_data['id'] = like.id
-                
-                # Check if the current user has liked this comment
-                if like_data['userId'] == user_id:
-                    user_liked = True
-                
-                likes_list.append(like_data)
-                like_count += 1
+            likes = query_documents('commentLikes', [('commentId', '==', comment_id)])
+            user_liked = any(like['userId'] == user_id for like in likes)
             
             return jsonify({
-                "count": like_count,
+                "count": len(likes),
                 "userLiked": user_liked,
-                "likes": likes_list
+                "likes": likes
             })
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -181,48 +222,67 @@ def comment_likes(comment_id):
     elif request.method == 'POST':
         try:
             # Check if the user has already liked this comment
-            existing_likes = like_ref.get()
-            if len(list(existing_likes)) > 0:
-                return jsonify({"message": "You already liked this comment"}), 400
+            existing_likes = query_documents('commentLikes', [
+                ('commentId', '==', comment_id),
+                ('userId', '==', user_id)
+            ])
             
-            # Create a new like
+            if existing_likes:
+                return jsonify({"error": "Comment already liked"}), 400
+            
+            # Create new like
             like_data = {
                 'commentId': comment_id,
                 'userId': user_id,
                 'createdAt': firestore.SERVER_TIMESTAMP
             }
             
-            doc_ref = db.collection('commentLikes').document()
-            doc_ref.set(like_data)
+            doc_id = create_document('commentLikes', like_data)
+            if doc_id:
+                # Create notification for comment owner (if not self-like)
+                comment_owner_id = comment_data.get('userId')
+                if comment_owner_id and comment_owner_id != user_id:
+                    # Get post data for title
+                    post_data = get_document('posts', comment_data.get('postId'))
+                    post_title = post_data.get('title') if post_data else None
+                    
+                    create_notification(
+                        recipient_id=comment_owner_id,
+                        sender_id=user_id,
+                        post_id=comment_data.get('postId'),
+                        post_title=post_title,
+                        comment_id=comment_id,
+                        notification_type='comment_like',
+                        content=comment_data.get('text')
+                    )
+                return jsonify({"message": "Comment liked successfully"}), 201
+            return jsonify({"error": "Failed to like comment"}), 500
             
-            # Get the comment's like count and increment it
-            comment_data = comment.to_dict()
-            current_likes = comment_data.get('likes', 0)
-            comment_ref.update({'likes': current_likes + 1})
-            
-            return jsonify({"message": "Comment liked successfully"}), 201
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     
     elif request.method == 'DELETE':
         try:
-            # Check if the user has liked this comment
-            existing_likes = like_ref.get()
-            likes_list = list(existing_likes)
-            if len(likes_list) == 0:
-                return jsonify({"message": "You haven't liked this comment"}), 400
+            # Find and delete the user's like
+            likes = query_documents('commentLikes', [
+                ('commentId', '==', comment_id),
+                ('userId', '==', user_id)
+            ])
             
-            # Delete the like
-            for like in likes_list:
-                db.collection('commentLikes').document(like.id).delete()
+            if not likes:
+                return jsonify({"error": "Like not found"}), 404
             
-            # Get the comment's like count and decrement it
-            comment_data = comment.to_dict()
-            current_likes = comment_data.get('likes', 0)
-            if current_likes > 0:
-                comment_ref.update({'likes': current_likes - 1})
+            success = delete_document('commentLikes', likes[0]['id'])
+            if success:
+                # Delete associated notification
+                delete_notifications(
+                    sender_id=user_id,
+                    comment_id=comment_id,
+                    notification_type='comment_like'
+                )
+                return jsonify({"message": "Comment unliked successfully"})
+            return jsonify({"error": "Failed to unlike comment"}), 500
             
-            return jsonify({"message": "Comment unliked successfully"})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
@@ -257,39 +317,59 @@ def comment_replies(comment_id):
     if request.method == 'GET':
         try:
             # Get all replies for the comment
-            replies_ref = db.collection('replies').where('commentId', '==', comment_id)
-            replies = replies_ref.stream()
-            
-            replies_list = []
-            for reply in replies:
-                reply_data = reply.to_dict()
-                reply_data['id'] = reply.id
-                
-                if 'createdAt' in reply_data:
-                    created_at = reply_data['createdAt']
-                    if isinstance(created_at, datetime):
-                        reply_data['createdAt'] = created_at.isoformat()
-                
-                replies_list.append(reply_data)
-            
-            return jsonify(replies_list)
+            replies = query_documents('comments', [('parentId', '==', comment_id)])
+            return jsonify(replies)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     
     elif request.method == 'POST':
         try:
             reply_data = request.json
+            
+            # Force set the correct user information
             reply_data['userId'] = user_id
-            reply_data['commentId'] = comment_id
+            
+            # Try to get username from the request data first (client-side)
+            # If not available, try to get from Firebase Auth
+            if 'username' not in reply_data or not reply_data['username']:
+                try:
+                    auth_user = auth.get_user(user_id)
+                    reply_data['username'] = auth_user.display_name or 'Anonymous'
+                except Exception as e:
+                    print(f"Error getting auth user: {e}")
+                    reply_data['username'] = 'Anonymous'
+            
+            reply_data['parentId'] = comment_id
+            reply_data['postId'] = comment.to_dict().get('postId')
             reply_data['createdAt'] = firestore.SERVER_TIMESTAMP
             
-            doc_ref = db.collection('replies').document()
-            doc_ref.set(reply_data)
+            # Create the reply
+            doc_id = create_document('comments', reply_data)
+            if not doc_id:
+                return jsonify({"error": "Failed to create reply"}), 500
             
-            # Get the created reply with its ID
-            reply = doc_ref.get()
-            response_data = reply.to_dict()
-            response_data['id'] = reply.id
+            # Get the created reply
+            response_data = get_document('comments', doc_id)
+            
+            # Create notification for comment owner (if not self-reply)
+            comment_data = comment.to_dict()
+            comment_owner_id = comment_data.get('userId')
+            
+            if comment_owner_id and comment_owner_id != user_id:
+                # Get post data for title
+                post_data = get_document('posts', comment_data.get('postId'))
+                post_title = post_data.get('title') if post_data else None
+                
+                # Create notification for comment owner
+                create_notification(
+                    recipient_id=comment_owner_id,
+                    sender_id=user_id,
+                    post_id=comment_data.get('postId'),
+                    post_title=post_title,
+                    comment_id=comment_id,
+                    notification_type='reply',
+                    content=reply_data.get('text')
+                )
             
             return jsonify(response_data), 201
         except Exception as e:
@@ -318,7 +398,7 @@ def reply_operations(reply_id):
     user_id = user['uid']
     
     # Get reply to verify it exists and belongs to the user
-    reply_ref = db.collection('replies').document(reply_id)
+    reply_ref = db.collection('comments').document(reply_id)
     reply = reply_ref.get()
     
     if not reply.exists:
@@ -338,7 +418,31 @@ def reply_operations(reply_id):
     
     elif request.method == 'DELETE':
         try:
-            reply_ref.delete()
+            # Start a batch operation
+            batch = db.batch()
+            
+            # Mark the reply as deleted
+            batch.update(reply_ref, {
+                'deleted': True,
+                'deletedAt': firestore.SERVER_TIMESTAMP
+            })
+            
+            # Delete notifications for this reply
+            delete_notifications(comment_id=reply_id)
+            
+            # Delete likes for this reply
+            likes = query_documents('commentLikes', [('commentId', '==', reply_id)])
+            for like in likes:
+                batch.delete(db.collection('commentLikes').document(like['id']))
+                # Delete like notifications
+                delete_notifications(
+                    comment_id=reply_id,
+                    notification_type='comment_like'
+                )
+            
+            # Commit all updates
+            batch.commit()
+            
             return jsonify({"message": "Reply deleted successfully"})
         except Exception as e:
             return jsonify({"error": str(e)}), 500 

@@ -24,7 +24,7 @@
  * @param {string} [searchQuery] - The search query to highlight text
  */
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../config/firebase";
 import { FaComment, FaShare, FaEllipsisV, FaGithub, FaWhatsapp, FaTwitter, FaFacebook, FaCopy, FaHeart, FaRegHeart, FaChevronDown, FaChevronUp, FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
@@ -67,6 +67,9 @@ interface Comment {
   userId: string;
   username: string;
   createdAt: any;
+  parentId?: string;
+  replies?: Comment[];
+  deleted?: boolean;
 }
 
 function Post(props: PostProps) {
@@ -75,7 +78,7 @@ function Post(props: PostProps) {
   const [post, setPost] = useState(initialPost);
   const [likes, setLikes] = useState<number>(0);
   const [liked, setLiked] = useState<boolean>(false);
-  // Declare comments but don't use it directly - data is passed to CommentSection
+  // Comments state used for storing data that's passed to CommentSection
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [comments, setComments] = useState<Comment[]>([]);
   const [totalCommentCount, setTotalCommentCount] = useState<number>(0);
@@ -162,13 +165,17 @@ function Post(props: PostProps) {
         let totalCount = 0;
         
         // Process the comments array to count all comments and replies
-        commentsData.forEach(comment => {
-          // Count the top-level comment
-          totalCount++;
-          
-          // If this is a top-level comment with replies, count those too
-          if (!comment.parentId && comment.replies && Array.isArray(comment.replies)) {
-            totalCount += comment.replies.length;
+        commentsData.forEach((comment: Comment) => {
+          // Only count the comment if it's not deleted
+          if (!comment.deleted) {
+            // Count the top-level comment
+            totalCount++;
+            
+            // If this is a top-level comment with replies, count those too
+            if (!comment.parentId && comment.replies && Array.isArray(comment.replies)) {
+              // Only count non-deleted replies
+              totalCount += comment.replies.filter((reply: Comment) => !reply.deleted).length;
+            }
           }
         });
         

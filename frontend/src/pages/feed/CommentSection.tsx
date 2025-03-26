@@ -32,7 +32,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../config/firebase';
 import './CommentSection.css';
 import { LoadingSpinner, ConfirmationDialog, LetterAvatar } from '../../components/common';
-import { getComments, createComment, updateComment, deleteComment, getCommentLikes, likeComment, unlikeComment } from '../../services/api';
+import { getComments, createComment, updateComment, deleteComment, getCommentLikes, likeComment, unlikeComment, deleteReply, updateReply, createReply } from '../../services/api';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
@@ -52,6 +52,7 @@ interface Comment {
   parentId?: string;
   replies?: Comment[];
   likes?: number;
+  deleted?: boolean;
 }
 
 /**
@@ -76,7 +77,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [showReplies, setShowReplies] = useState<{ [key: string]: boolean }>({});
-  const [showAllComments, setShowAllComments] = useState(false);
   const [likedComments, setLikedComments] = useState<{ [key: string]: boolean }>({});
   const [commentLikes, setCommentLikes] = useState<{ [key: string]: number }>({});
 
@@ -86,27 +86,29 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
       setError(null);
       const commentsData = await getComments(postId);
       
-      // Organize comments and replies
+      // Filter out deleted comments and organize comments and replies
       const parentComments: Comment[] = [];
       const repliesMap: { [key: string]: Comment[] } = {};
       
       commentsData.forEach((comment: Comment) => {
-        if (!comment.parentId) {
-          parentComments.push({ ...comment, replies: [] });
-        } else {
-          if (!repliesMap[comment.parentId]) {
-            repliesMap[comment.parentId] = [];
+        if (!comment.deleted) {
+          if (!comment.parentId) {
+            parentComments.push({ ...comment, replies: [] });
+          } else {
+            if (!repliesMap[comment.parentId]) {
+              repliesMap[comment.parentId] = [];
+            }
+            repliesMap[comment.parentId].push(comment);
           }
-          repliesMap[comment.parentId].push(comment);
         }
       });
       
       // Attach replies to parent comments
       parentComments.forEach(comment => {
         if (repliesMap[comment.id]) {
-          comment.replies = repliesMap[comment.id].sort((a, b) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
+          comment.replies = repliesMap[comment.id]
+            .filter(reply => !reply.deleted)
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         }
       });
       
@@ -161,17 +163,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      toast.error("You must be logged in to comment", {
-        position: "top-right",
-        autoClose: 3000
-      });
+      toast.error("You must be logged in to comment");
       return;
     }
     if (!newComment.trim()) {
-      toast.error("Comment cannot be empty", {
-        position: "top-right",
-        autoClose: 3000
-      });
+      toast.error("Comment cannot be empty");
       return;
     }
 
@@ -189,45 +185,52 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
       if (onCommentChanged) {
         await onCommentChanged();
       }
-      toast.success("Comment added successfully", {
-        position: "top-right",
-        autoClose: 3000
-      });
+      toast.success("Comment added successfully");
     } catch (error) {
       console.error("Error adding comment:", error);
-      toast.error("Failed to add comment", {
-        position: "top-right",
-        autoClose: 3000
-      });
+      toast.error("Failed to add comment");
     }
   };
 
   const handleEdit = async (comment: Comment) => {
     if (editingCommentId === comment.id) {
       try {
-        await updateComment(comment.id, { text: editedText });
-        setComments(comments.map(c => 
-          c.id === comment.id ? { ...c, text: editedText } : c
-        ));
+        if (comment.parentId) {
+          // Update reply
+          await updateReply(comment.id, { text: editedText });
+        } else {
+          // Update comment
+          await updateComment(comment.id, { text: editedText });
+        }
+
+        setComments(prevComments => {
+          if (comment.parentId) {
+            // Update reply
+            return prevComments.map(c => ({
+              ...c,
+              replies: c.replies?.map(r =>
+                r.id === comment.id ? { ...r, text: editedText } : r
+              )
+            }));
+          } else {
+            // Update comment
+            return prevComments.map(c =>
+              c.id === comment.id ? { ...c, text: editedText } : c
+            );
+          }
+        });
+
         setEditingCommentId(null);
         setEditedText("");
         
-        // This may not be strictly necessary for count updates,
-        // but ensures data consistency
         if (onCommentChanged) {
           await onCommentChanged();
         }
         
-        toast.success("Comment updated successfully", {
-          position: "top-right",
-          autoClose: 3000
-        });
+        toast.success("Comment updated successfully");
       } catch (error) {
         console.error("Error updating comment:", error);
-        toast.error("Failed to update comment", {
-          position: "top-right",
-          autoClose: 3000
-        });
+        toast.error("Failed to update comment");
       }
     } else {
       setEditingCommentId(comment.id);
@@ -237,48 +240,46 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
 
   const handleDelete = async (commentId: string) => {
     try {
-      await deleteComment(commentId);
+      const commentToDelete = comments.find(c => c.id === commentId) || 
+        comments.flatMap(c => c.replies || []).find(r => r.id === commentId);
+
+      if (!commentToDelete) {
+        throw new Error('Comment not found');
+      }
+
+      if (commentToDelete.parentId) {
+        // Delete reply
+        await deleteReply(commentId);
+      } else {
+        // Delete comment
+        await deleteComment(commentId);
+      }
       
       // Update the UI to remove the comment or reply
       setComments(prevComments => {
-        // Check if it's a top-level comment
-        const isTopLevel = prevComments.some(c => c.id === commentId);
-        
-        if (isTopLevel) {
+        if (commentToDelete.parentId) {
+          // If it's a reply, find its parent and remove it from replies
+          return prevComments.map(comment => ({
+            ...comment,
+            replies: comment.replies?.filter(reply => reply.id !== commentId)
+          }));
+        } else {
           // If it's a top-level comment, filter it out
           return prevComments.filter(c => c.id !== commentId);
-        } else {
-          // If it's a reply, we need to find its parent and remove it from replies
-          return prevComments.map(comment => {
-            if (comment.replies && comment.replies.some(reply => reply.id === commentId)) {
-              return {
-                ...comment,
-                replies: comment.replies.filter(reply => reply.id !== commentId)
-              };
-            }
-            return comment;
-          });
         }
       });
       
       setShowDeleteDialog(false);
       setCommentToDelete(null);
       
-      // Call onCommentChanged to refresh the parent component's comment count
       if (onCommentChanged) {
         await onCommentChanged();
       }
       
-      toast.success("Comment deleted successfully", {
-        position: "top-right",
-        autoClose: 3000
-      });
+      toast.success("Comment deleted successfully");
     } catch (error) {
       console.error("Error deleting comment:", error);
-      toast.error("Failed to delete comment", {
-        position: "top-right",
-        autoClose: 3000
-      });
+      toast.error("Failed to delete comment");
     }
   };
 
@@ -297,10 +298,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
         text: replyText.trim(),
         postId,
         parentId,
+        userId: user.uid,
         username: user.displayName || 'Anonymous'
       };
 
-      const response = await createComment(postId, replyData);
+      const response = await createReply(parentId, replyData);
       
       // Update the UI optimistically
       setComments(prevComments => 
@@ -318,7 +320,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
       setReplyText("");
       setReplyingTo(null);
       
-      // Call onCommentChanged to refresh the parent component's data
       if (onCommentChanged) {
         await onCommentChanged();
       }
@@ -332,10 +333,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
 
   const handleLikeComment = async (commentId: string) => {
     if (!user) {
-      toast.error("You must be logged in to like comments", {
-        position: "top-right",
-        autoClose: 3000
-      });
+      toast.error("You must be logged in to like comments");
       return;
     }
     
@@ -361,125 +359,147 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
     }
   };
 
-  const renderComment = (comment: Comment, isReply = false) => (
-    <div key={comment.id} className="comment">
-      <div className="comment-header">
-        <div className="comment-author">
-          <Link to={`/user/${comment.username}`} className="comment-username">
-            <LetterAvatar name={comment.username} size="small" />
-            <div className="user-details">
-              <span className="username">{comment.username}</span>
-              <span className="comment-date">
+  const renderComment = (comment: Comment, isReply = false) => {
+    // Don't render deleted comments
+    if (comment.deleted) {
+      return null;
+    }
+
+    return (
+      <div key={comment.id} className={`comment ${isReply ? 'reply' : ''}`}>
+        <div className="comment-header">
+          <div className="comment-user">
+            <Link to={`/profile/${comment.userId}`}>
+              <LetterAvatar name={comment.username} size="small" />
+            </Link>
+            <div className="comment-info">
+              <Link to={`/profile/${comment.userId}`} className="comment-username">
+                {comment.username}
+              </Link>
+              <span className="comment-time">
                 {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
               </span>
             </div>
-          </Link>
-        </div>
-      </div>
-      
-      {editingCommentId === comment.id ? (
-        <div className="edit-comment">
-          <textarea
-            value={editedText}
-            onChange={(e) => setEditedText(e.target.value)}
-            className="edit-input"
-          />
-          <div className="edit-actions">
-            <button onClick={() => handleEdit(comment)} className="save-button">
-              Save
-            </button>
-            <button onClick={() => setEditingCommentId(null)} className="cancel-button">
-              Cancel
-            </button>
           </div>
         </div>
-      ) : (
-        <>
-          <p className="comment-text">{comment.text}</p>
-          <div className="comment-actions">
-            {user && !isReply && (
+
+        {editingCommentId === comment.id ? (
+          <div className="edit-comment">
+            <textarea
+              value={editedText}
+              onChange={(e) => setEditedText(e.target.value)}
+              className="edit-input"
+            />
+            <div className="edit-actions">
+              <button onClick={() => handleEdit(comment)} className="save-button">
+                Save
+              </button>
+              <button onClick={() => {
+                setEditingCommentId(null);
+                setEditedText("");
+              }} className="cancel-button">
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="comment-text">{comment.text}</p>
+            <div className="comment-actions">
+              {/* Only show Reply button for comments (not replies) and when user is logged in */}
+              {user && !isReply && (
+                <button 
+                  onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+                  className="reply-button"
+                >
+                  Reply
+                </button>
+              )}
+              
+              {/* Like button for both comments and replies */}
+              <button
+                onClick={() => handleLikeComment(comment.id)}
+                className={`like-button ${likedComments[comment.id] ? 'liked' : ''}`}
+              >
+                {likedComments[comment.id] ? <FaHeart /> : <FaRegHeart />} {commentLikes[comment.id] || 0}
+              </button>
+              
+              {/* Edit and Delete buttons for comment/reply owner */}
+              {user?.uid === comment.userId && (
+                <>
+                  <button 
+                    onClick={() => handleEdit(comment)} 
+                    className="action-button"
+                    title={isReply ? "Edit" : "Edit"}
+                  >
+                    <FaEdit /> {isReply ? "Edit" : "Edit"}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setCommentToDelete(comment.id);
+                      setShowDeleteDialog(true);
+                    }}
+                    className="action-button"
+                    title={isReply ? "Delete" : "Delete"}
+                  >
+                    <FaTrash /> {isReply ? "Delete" : "Delete"}
+                  </button>
+                </>
+              )}
+            </div>
+          </>
+        )}
+
+        {replyingTo === comment.id && (
+          <div className="reply-form">
+            <textarea
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              placeholder="Write a reply..."
+              className="reply-input"
+            />
+            <div className="reply-actions">
               <button 
-                onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
-                className="reply-button"
+                onClick={() => handleReply(comment.id)}
+                className="submit-reply"
               >
                 Reply
               </button>
-            )}
-            <button
-              onClick={() => handleLikeComment(comment.id)}
-              className={`like-button ${likedComments[comment.id] ? 'liked' : ''}`}
-            >
-              {likedComments[comment.id] ? <FaHeart /> : <FaRegHeart />} {commentLikes[comment.id] || 0}
-            </button>
-            {user?.uid === comment.userId && (
-              <>
-                <button onClick={() => handleEdit(comment)} className="action-button">
-                  <FaEdit /> Edit
-                </button>
-                <button 
-                  onClick={() => {
-                    setCommentToDelete(comment.id);
-                    setShowDeleteDialog(true);
-                  }}
-                  className="action-button"
-                >
-                  <FaTrash /> Delete
-                </button>
-              </>
-            )}
-          </div>
-        </>
-      )}
-
-      {replyingTo === comment.id && (
-        <div className="reply-form">
-          <textarea
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-            placeholder="Write a reply..."
-            className="reply-input"
-          />
-          <div className="reply-actions">
-            <button 
-              onClick={() => handleReply(comment.id)}
-              className="submit-reply"
-            >
-              Reply
-            </button>
-            <button 
-              onClick={() => {
-                setReplyingTo(null);
-                setReplyText("");
-              }}
-              className="cancel-reply"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-      {comment.replies && comment.replies.length > 0 && (
-        <div className="replies-section">
-          <button 
-            onClick={() => setShowReplies(prev => ({
-              ...prev,
-              [comment.id]: !prev[comment.id]
-            }))}
-            className="toggle-replies"
-          >
-            {showReplies[comment.id] ? 'Hide' : 'Show'} {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}
-          </button>
-          
-          {showReplies[comment.id] && (
-            <div className="replies-list">
-              {comment.replies.map((reply: Comment) => renderComment(reply, true))}
+              <button 
+                onClick={() => {
+                  setReplyingTo(null);
+                  setReplyText("");
+                }}
+                className="cancel-reply"
+              >
+                Cancel
+              </button>
             </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
+          </div>
+        )}
+
+        {comment.replies && comment.replies.length > 0 && (
+          <div className="replies-section">
+            <button 
+              onClick={() => setShowReplies(prev => ({
+                ...prev,
+                [comment.id]: !prev[comment.id]
+              }))}
+              className="toggle-replies"
+            >
+              {showReplies[comment.id] ? 'Hide' : 'Show'} {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}
+            </button>
+            
+            {showReplies[comment.id] && (
+              <div className="replies-list">
+                {comment.replies.map((reply: Comment) => renderComment(reply, true))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   if (loading) return <LoadingSpinner />;
   if (error) return <div className="error-message">{error}</div>;
@@ -494,28 +514,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
           className="comment-input"
         />
         <button type="submit" className="submit-button">
-          Post Comment
+          Comment
         </button>
       </form>
 
       <div className="comments-list">
         {comments.length === 0 ? (
-          <p className="no-comments">No comments yet. Be the first to comment!</p>
+          <div className="no-comments">
+            No comments yet. Be the first to comment!
+          </div>
         ) : (
-          <>
-            {(showAllComments ? comments : comments.slice(0, 2)).map(comment => renderComment(comment))}
-            
-            {comments.length > 2 && (
-              <div className="show-more-comments">
-                <button 
-                  onClick={() => setShowAllComments(!showAllComments)}
-                  className="toggle-comments-button"
-                >
-                  {showAllComments ? `Show less comments` : `Show remaining ${comments.length - 2} comments`}
-                </button>
-              </div>
-            )}
-          </>
+          comments.map(comment => renderComment(comment))
         )}
       </div>
 

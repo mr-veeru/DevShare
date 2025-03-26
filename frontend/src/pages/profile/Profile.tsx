@@ -74,9 +74,12 @@ const Profile = () => {
     try {
       setLoading(true);
       const allPosts = await getPosts();
-      const userPosts = allPosts.filter((post: UserPost) => 
-        post.username === (username || user.displayName)
-      );
+      
+      // If viewing your own profile, filter by userId instead of username
+      // This ensures all posts show up even if username changed
+      const userPosts = isOwnProfile 
+        ? allPosts.filter((post: UserPost) => post.userId === user.uid)
+        : allPosts.filter((post: UserPost) => post.username === username);
       
       // Get likes for each post
       const postsWithLikes = await Promise.all(userPosts.map(async (post: UserPost) => {
@@ -90,11 +93,9 @@ const Profile = () => {
           likesCount = likesData.length;
         }
         
-        console.log(`Post "${post.title}" has ${likesCount} likes from API`);
         return { ...post, likes: likesCount };
       }));
 
-      console.log('Posts with likes:', postsWithLikes);
       setPosts(postsWithLikes);
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -102,7 +103,7 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, username]);
+  }, [user, username, isOwnProfile]);
 
   useEffect(() => {
     if (!user) {
@@ -129,12 +130,9 @@ const Profile = () => {
         }
         // Add post likes to total
         if (post.likes) {
-          console.log(`Post "${post.title}" has ${post.likes} likes`);
           totalLikes += post.likes;
         }
       });
-
-      console.log(`Total calculated likes: ${totalLikes}`);
       
       return {
         totalPosts: posts.length,
@@ -155,7 +153,6 @@ const Profile = () => {
 
   useEffect(() => {
     const stats = calculateUserStats();
-    console.log('Setting user stats with total likes:', stats.totalLikes);
     setUserStats(prev => ({
       ...prev,
       totalLikes: stats.totalLikes,
@@ -169,13 +166,6 @@ const Profile = () => {
       month: 'long',
       day: 'numeric'
     }).format(date);
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const sortPostsByDate = (posts: UserPost[]) => {
-    return [...posts].sort((a, b) => {
-      return b.createdAt - a.createdAt;
-    });
   };
 
   // Add comment toggle handler
@@ -199,12 +189,6 @@ const Profile = () => {
           : post
       )
     );
-    
-    // Log the update for debugging
-    console.log(`Post ${postId} updated with:`, updatedData);
-    if (updatedData.likes !== undefined) {
-      console.log(`Likes updated to: ${updatedData.likes}`);
-    }
   }, []);
 
   if (loading) {

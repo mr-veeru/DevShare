@@ -42,5 +42,9 @@ def get_user_id(request) -> Optional[str]:
     Returns:
         String containing user ID if token is valid, None otherwise
     """
-    user = verify_token(request)
-    return user['uid'] if user else None 
+    try:
+        user = verify_token(request)
+        return user['uid'] if user else None
+    except Exception as e:
+        print(f"Error extracting user ID from token: {e}")
+        return None 

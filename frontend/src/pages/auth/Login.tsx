@@ -121,16 +121,49 @@ const Login = () => {
       try {
         const result = await signInWithPopup(auth, provider);
         if (result.user) {
+          // Check if this is the first time the user has signed in with Google
+          // @ts-ignore - _tokenResponse exists but isn't in the TypeScript definition
+          const isNewUser = result._tokenResponse?.isNewUser;
+          
+          // If user exists but signed in with Google for the first time,
+          // it means they previously had an email/password account
+          if (!isNewUser) {
+            // Check if this account was linked (look for Google provider data)
+            const isGoogleAccount = result.user.providerData.some(
+              provider => provider.providerId === 'google.com'
+            );
+            
+            // Only show the message and redirect to settings if this is truly a linked account
+            if (isGoogleAccount && result.user.providerData.length > 1) {
+              // If the display name matches a Google profile name (typically full name),
+              // we should alert the user what happened
+              showMessage('error', 
+                "Your email/password account has been linked with your Google account. " +
+                "Your posts are preserved but your username may have changed. " +
+                "You can update your username in Profile Settings."
+              );
+              
+              // Wait 5 seconds before navigating so user can see the message
+              setTimeout(() => {
+                navigate('/feed');
+              }, 5000);
+              return;
+            } else {
+              // Just navigate to feed for normal logins
+              navigate('/feed');
+              return;
+            }
+          }
+          
           navigate('/feed');
         }
       } catch (popupError: any) {
         // If popup is blocked or fails, fallback to redirect
         if (
-          popupError.code === 'auth/popup-blocked' || 
-          popupError.code === 'auth/popup-closed-by-user' ||
+          popupError.code === 'auth/popup-closed-by-user' || 
           popupError.code === 'auth/cancelled-popup-request'
         ) {
-          console.log('Popup failed, using redirect instead');
+          // Popup failed, fallback to redirect method
           await signInWithRedirect(auth, provider);
           // Page will reload and redirect result will be handled in useEffect
         } else {

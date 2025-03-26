@@ -113,13 +113,19 @@ const ProfileSettings = () => {
     try {
       setIsSubmitting(true);
       
-      // Check if username is already taken
+      // Check if username is already taken by someone else
       if (displayName !== user.displayName) {
-        const usersRef = collection(db, "posts");
-        const q = query(usersRef, where("username", "==", displayName));
+        // Query posts by this username
+        const postsRef = collection(db, "posts");
+        const q = query(postsRef, where("username", "==", displayName));
         const querySnapshot = await getDocs(q);
         
-        if (!querySnapshot.empty) {
+        // Check if any posts with this username belong to a different user
+        const isTakenByAnotherUser = querySnapshot.docs.some(
+          doc => doc.data().userId !== user.uid
+        );
+        
+        if (isTakenByAnotherUser) {
           setError("Username already exists. Please choose a different one.");
           return;
         }
@@ -142,6 +148,14 @@ const ProfileSettings = () => {
       const userComments = await getDocs(userCommentsQuery);
       
       userComments.docs.forEach((doc) => {
+        batch.update(doc.ref, { username: displayName });
+      });
+      
+      // Update all user's replies with new username
+      const userRepliesQuery = query(collection(db, "replies"), where("userId", "==", user.uid));
+      const userReplies = await getDocs(userRepliesQuery);
+      
+      userReplies.docs.forEach((doc) => {
         batch.update(doc.ref, { username: displayName });
       });
       

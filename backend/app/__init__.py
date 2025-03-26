@@ -65,6 +65,14 @@ def create_app():
     app.register_blueprint(posts_bp, url_prefix='/api/posts')
     app.register_blueprint(comments_bp, url_prefix='/api/comments')
     
+    # Add notifications routes with direct import
+    from .routes.users import get_notifications, create_notification, notification_operations
+    
+    # Map notifications routes to user routes
+    app.route('/api/notifications', methods=['GET'])(get_notifications)
+    app.route('/api/notifications', methods=['POST'])(create_notification)
+    app.route('/api/notifications/<notification_id>', methods=['PUT', 'DELETE'])(notification_operations)
+    
     # Add test endpoints for health checking and testing authentication
     @app.route('/api/test', methods=['GET'])
     def test():

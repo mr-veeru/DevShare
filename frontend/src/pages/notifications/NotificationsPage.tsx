@@ -27,7 +27,9 @@ import './NotificationsPage.css';
 // Notification types
 export enum NotificationType {
   LIKE = 'like',
-  COMMENT = 'comment'
+  COMMENT = 'comment',
+  COMMENT_LIKE = 'comment_like',
+  REPLY = 'reply'
 }
 
 // Notification interface
@@ -41,6 +43,7 @@ export interface Notification {
   type: NotificationType;
   read: boolean;
   createdAt: Timestamp;
+  commentId?: string;
 }
 
 /**
@@ -84,6 +87,12 @@ export const useNotifications = () => {
         
         querySnapshot.forEach((doc) => {
           const notificationData = { id: doc.id, ...doc.data() } as Notification;
+          
+          // Skip notifications where the user is both sender and recipient (self-notifications)
+          if (notificationData.senderId === user.uid && notificationData.recipientId === user.uid) {
+            return;
+          }
+          
           notificationsList.push(notificationData);
           
           if (!notificationData.read) {
@@ -249,8 +258,14 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     // Mark as read first
     onRead(notification.id);
     
-    // Navigate to the post
-    navigate(`/post/${notification.postId}`);
+    // Navigate based on notification type
+    if (notification.type === NotificationType.COMMENT_LIKE || notification.type === NotificationType.REPLY) {
+      // Navigate to the specific comment if it's a comment-related notification
+      navigate(`/post/${notification.postId}?comment=${notification.commentId}`);
+    } else {
+      // Otherwise just navigate to the post
+      navigate(`/post/${notification.postId}`);
+    }
   };
   
   return (
@@ -261,8 +276,14 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       <div className="notification-icon">
         {notification.type === NotificationType.LIKE ? (
           <FaHeart className="like-icon" />
-        ) : (
+        ) : notification.type === NotificationType.COMMENT ? (
           <FaComment className="comment-icon" />
+        ) : notification.type === NotificationType.COMMENT_LIKE ? (
+          <FaHeart className="like-icon comment-like" />
+        ) : notification.type === NotificationType.REPLY ? (
+          <FaComment className="reply-icon" />
+        ) : (
+          <FaBell />
         )}
       </div>
       
@@ -271,7 +292,13 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           <strong>{notification.senderName}</strong>
           {notification.type === NotificationType.LIKE 
             ? ' liked your post ' 
-            : ' commented on your post '}
+            : notification.type === NotificationType.COMMENT
+            ? ' commented on your post '
+            : notification.type === NotificationType.COMMENT_LIKE
+            ? ' liked your comment on '
+            : notification.type === NotificationType.REPLY
+            ? ' replied to your comment on '
+            : ' interacted with '}
           <strong>"{notification.postTitle}"</strong>
         </div>
         
@@ -353,7 +380,7 @@ const NotificationsPage: React.FC = () => {
           <div className="notifications-empty">
             <FaBell className="empty-icon" />
             <h3>No notifications yet</h3>
-            <p>When someone likes or comments on your posts, you'll see it here.</p>
+            <p>When someone likes or comments on your posts, or replies to your comments, you'll see it here.</p>
           </div>
         ) : (
           <div className="notifications-list">

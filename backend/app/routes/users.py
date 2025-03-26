@@ -7,7 +7,7 @@ from flask import Blueprint, request, jsonify
 from firebase_admin import firestore
 from datetime import datetime
 from ..utils.auth import verify_token
-from ..services.firebase import db
+from ..services.firebase import db, query_documents, create_document, get_document, update_document, delete_document
 
 users_bp = Blueprint('users', __name__)
 
@@ -28,18 +28,50 @@ def user_profile():
     if not user:
         return jsonify({"error": "Unauthorized"}), 401
     
-    user_ref = db.collection('users').document(user['uid'])
+    user_id = user['uid']
     
     if request.method == 'GET':
-        doc = user_ref.get()
-        if doc.exists:
-            return jsonify(doc.to_dict())
+        profile_data = get_document('users', user_id)
+        if profile_data:
+            return jsonify(profile_data)
         return jsonify({"error": "Profile not found"}), 404
     
     elif request.method == 'PUT':
         try:
             profile_data = request.json
-            user_ref.set(profile_data, merge=True)
+            
+            # Use the update_document utility, but we need to check if it exists first
+            existing = get_document('users', user_id)
+            if existing:
+                success = update_document('users', user_id, profile_data)
+            else:
+                # Create it if it doesn't exist
+                create_document('users', profile_data, user_id)
+                success = True
+            
+            if not success:
+                return jsonify({"error": "Failed to update profile"}), 500
+            
+            # Get updated display name or username
+            display_name = profile_data.get('displayName')
+            username = profile_data.get('username')
+            
+            # If display name or username was updated, update all related notifications
+            if display_name or username:
+                # Determine the new name to use in notifications
+                new_name = display_name if display_name else username
+                
+                if new_name:
+                    # Find all notifications sent by this user using query_documents
+                    notifications = query_documents(
+                        collection='notifications',
+                        filters=[('senderId', '==', user_id)]
+                    )
+                    
+                    # Update each notification with the new sender name
+                    for notification in notifications:
+                        update_document('notifications', notification['id'], {'senderName': new_name})
+            
             return jsonify({"message": "Profile updated successfully"})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -61,12 +93,15 @@ def get_user_by_username(username):
         return jsonify({"error": "Unauthorized"}), 401
     
     try:
-        users_ref = db.collection('users')
-        query = users_ref.where('username', '==', username).limit(1)
-        docs = query.get()
+        # Use query_documents to find user by username
+        users = query_documents(
+            collection='users',
+            filters=[('username', '==', username)],
+            limit_count=1
+        )
         
-        for doc in docs:
-            return jsonify(doc.to_dict())
+        if users:
+            return jsonify(users[0])
         
         return jsonify({"error": "User not found"}), 404
     except Exception as e:
@@ -88,21 +123,19 @@ def get_notifications():
     user_id = user['uid']
     
     try:
-        # Get all notifications for the user
-        notifications_ref = db.collection('notifications').where('recipientId', '==', user_id)
-        notifications = notifications_ref.stream()
+        # Get all notifications for the user using the improved query_documents function
+        notifications_list = query_documents(
+            collection='notifications',
+            filters=[('recipientId', '==', user_id)],
+            order_by='createdAt',
+            direction='DESCENDING',
+            limit_count=50
+        )
         
-        notifications_list = []
-        for notification in notifications:
-            notification_data = notification.to_dict()
-            notification_data['id'] = notification.id
-            
-            if 'createdAt' in notification_data:
-                created_at = notification_data['createdAt']
-                if isinstance(created_at, datetime):
-                    notification_data['createdAt'] = created_at.isoformat()
-            
-            notifications_list.append(notification_data)
+        # Format timestamps for JSON
+        for notification in notifications_list:
+            if 'createdAt' in notification and isinstance(notification['createdAt'], datetime):
+                notification['createdAt'] = notification['createdAt'].isoformat()
         
         return jsonify(notifications_list)
     except Exception as e:
@@ -125,13 +158,11 @@ def create_notification():
         notification_data = request.json
         notification_data['createdAt'] = firestore.SERVER_TIMESTAMP
         
-        doc_ref = db.collection('notifications').document()
-        doc_ref.set(notification_data)
+        # Use the create_document utility function
+        doc_id = create_document('notifications', notification_data)
         
         # Get the created notification with its ID
-        notification = doc_ref.get()
-        response_data = notification.to_dict()
-        response_data['id'] = notification.id
+        response_data = get_document('notifications', doc_id)
         
         return jsonify(response_data), 201
     except Exception as e:
@@ -160,27 +191,26 @@ def notification_operations(notification_id):
     user_id = user['uid']
     
     # Get notification to verify it exists and belongs to the user
-    notification_ref = db.collection('notifications').document(notification_id)
-    notification = notification_ref.get()
+    notification_data = get_document('notifications', notification_id)
     
-    if not notification.exists:
+    if not notification_data:
         return jsonify({"error": "Notification not found"}), 404
     
-    notification_data = notification.to_dict()
     if notification_data.get('recipientId') != user_id:
         return jsonify({"error": "Unauthorized"}), 403
     
-    if request.method == 'PUT':
-        try:
+    try:
+        if request.method == 'PUT':
             update_data = request.json
-            notification_ref.update(update_data)
-            return jsonify({"message": "Notification updated successfully"})
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
-    
-    elif request.method == 'DELETE':
-        try:
-            notification_ref.delete()
-            return jsonify({"message": "Notification deleted successfully"})
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500 
+            success = update_document('notifications', notification_id, update_data)
+            message = "Notification updated successfully"
+        else:  # DELETE
+            success = delete_document('notifications', notification_id)
+            message = "Notification deleted successfully"
+            
+        if success:
+            return jsonify({"message": message})
+        return jsonify({"error": f"Failed to {request.method.lower()} notification"}), 500
+                
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500 

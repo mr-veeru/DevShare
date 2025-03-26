@@ -5,9 +5,9 @@ reading, updating and deleting posts, as well as likes functionality.
 """
 from flask import Blueprint, request, jsonify
 from firebase_admin import firestore
-from datetime import datetime
 from ..utils.auth import verify_token
-from ..services.firebase import db
+from ..services.firebase import db, query_documents, create_document, get_document, update_document, delete_document
+from ..utils.user import delete_notifications
 
 posts_bp = Blueprint('posts', __name__)
 
@@ -30,18 +30,15 @@ def posts():
 
     if request.method == 'GET':
         try:
-            posts_ref = db.collection('posts')
-            docs = posts_ref.order_by('createdAt', direction=firestore.Query.DESCENDING).get()
-            posts_list = []
-            for doc in docs:
-                post_data = doc.to_dict()
-                post_data['id'] = doc.id
-                # Convert Firestore Timestamp to ISO string
-                if 'createdAt' in post_data and isinstance(post_data['createdAt'], datetime):
-                    post_data['createdAt'] = post_data['createdAt'].isoformat()
-                posts_list.append(post_data)
+            # Get all posts ordered by creation date
+            posts_list = query_documents(
+                collection='posts',
+                order_by='createdAt',
+                direction='DESCENDING'
+            )
             return jsonify(posts_list)
         except Exception as e:
+            print(f"Error fetching posts: {e}")  # Add logging for debugging
             return jsonify({"error": str(e)}), 500
 
     elif request.method == 'POST':
@@ -49,16 +46,17 @@ def posts():
             post_data = request.json
             post_data['userId'] = user['uid']
             post_data['createdAt'] = firestore.SERVER_TIMESTAMP
-            doc_ref = db.collection('posts').document()
-            doc_ref.set(post_data)
             
-            # Get the created post with its ID
-            post = doc_ref.get()
-            response_data = post.to_dict()
-            response_data['id'] = post.id
+            # Create the post
+            doc_id = create_document('posts', post_data)
+            if not doc_id:
+                return jsonify({"error": "Failed to create post"}), 500
             
+            # Get the created post
+            response_data = get_document('posts', doc_id)
             return jsonify(response_data), 201
         except Exception as e:
+            print(f"Error creating post: {e}")  # Add logging for debugging
             return jsonify({"error": str(e)}), 500
 
 @posts_bp.route('/<post_id>', methods=['GET', 'PUT', 'DELETE'])
@@ -83,32 +81,64 @@ def post_operations(post_id):
     if not user:
         return jsonify({"error": "Unauthorized"}), 401
 
-    post_ref = db.collection('posts').document(post_id)
-    post = post_ref.get()
-
-    if not post.exists:
+    post_data = get_document('posts', post_id)
+    if not post_data:
         return jsonify({"error": "Post not found"}), 404
 
     if request.method == 'GET':
-        post_data = post.to_dict()
-        post_data['id'] = post.id
         return jsonify(post_data)
 
-    post_data = post.to_dict()
     if post_data['userId'] != user['uid']:
         return jsonify({"error": "Unauthorized"}), 403
 
     if request.method == 'PUT':
         try:
             update_data = request.json
-            post_ref.update(update_data)
-            return jsonify({"message": "Post updated successfully"})
+            success = update_document('posts', post_id, update_data)
+            if success:
+                return jsonify({"message": "Post updated successfully"})
+            return jsonify({"error": "Failed to update post"}), 500
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
     elif request.method == 'DELETE':
         try:
-            post_ref.delete()
+            # Delete the post
+            success = delete_document('posts', post_id)
+            if not success:
+                return jsonify({"error": "Failed to delete post"}), 500
+            
+            # Delete all notifications related to this post
+            delete_notifications(post_id=post_id)
+            
+            # Delete all comments, replies and likes associated with this post
+            batch = db.batch()
+            
+            # Delete comments and their related content
+            comments = query_documents('comments', [('postId', '==', post_id)])
+            for comment in comments:
+                comment_id = comment['id']
+                # Delete replies
+                replies = query_documents('replies', [('commentId', '==', comment_id)])
+                for reply in replies:
+                    batch.delete(db.collection('replies').document(reply['id']))
+                
+                # Delete comment likes
+                comment_likes = query_documents('commentLikes', [('commentId', '==', comment_id)])
+                for like in comment_likes:
+                    batch.delete(db.collection('commentLikes').document(like['id']))
+                
+                # Delete the comment
+                batch.delete(db.collection('comments').document(comment_id))
+            
+            # Delete post likes
+            likes = query_documents('likes', [('postId', '==', post_id)])
+            for like in likes:
+                batch.delete(db.collection('likes').document(like['id']))
+            
+            # Commit all deletions
+            batch.commit()
+            
             return jsonify({"message": "Post deleted successfully"})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -159,39 +189,20 @@ def post_likes(post_id):
     user_id = user['uid']
     
     # Get post to verify it exists
-    post_ref = db.collection('posts').document(post_id)
-    post = post_ref.get()
-    if not post.exists:
+    post_data = get_document('posts', post_id)
+    if not post_data:
         return jsonify({"error": "Post not found"}), 404
-    
-    # Reference to the user's like for this post
-    like_ref = db.collection('likes').where('postId', '==', post_id).where('userId', '==', user_id)
     
     if request.method == 'GET':
         try:
             # Get all likes for the post
-            likes_ref = db.collection('likes').where('postId', '==', post_id)
-            likes = likes_ref.stream()
-            
-            likes_list = []
-            user_liked = False
-            like_count = 0
-            
-            for like in likes:
-                like_data = like.to_dict()
-                like_data['id'] = like.id
-                
-                # Check if the current user has liked this post
-                if like_data['userId'] == user_id:
-                    user_liked = True
-                
-                likes_list.append(like_data)
-                like_count += 1
+            likes = query_documents('likes', [('postId', '==', post_id)])
+            user_liked = any(like['userId'] == user_id for like in likes)
             
             return jsonify({
-                "count": like_count,
+                "count": len(likes),
                 "userLiked": user_liked,
-                "likes": likes_list
+                "likes": likes
             })
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -199,47 +210,44 @@ def post_likes(post_id):
     elif request.method == 'POST':
         try:
             # Check if the user has already liked this post
-            existing_likes = like_ref.get()
-            if len(list(existing_likes)) > 0:
-                return jsonify({"message": "You already liked this post"}), 400
+            existing_likes = query_documents('likes', [
+                ('postId', '==', post_id),
+                ('userId', '==', user_id)
+            ])
             
-            # Create a new like
+            if existing_likes:
+                return jsonify({"error": "Post already liked"}), 400
+            
+            # Create new like
             like_data = {
                 'postId': post_id,
                 'userId': user_id,
                 'createdAt': firestore.SERVER_TIMESTAMP
             }
             
-            doc_ref = db.collection('likes').document()
-            doc_ref.set(like_data)
+            doc_id = create_document('likes', like_data)
+            if doc_id:
+                return jsonify({"message": "Post liked successfully"}), 201
+            return jsonify({"error": "Failed to like post"}), 500
             
-            # Get the post's like count and increment it
-            post_data = post.to_dict()
-            current_likes = post_data.get('likes', 0)
-            post_ref.update({'likes': current_likes + 1})
-            
-            return jsonify({"message": "Post liked successfully"}), 201
         except Exception as e:
             return jsonify({"error": str(e)}), 500
     
     elif request.method == 'DELETE':
         try:
-            # Check if the user has liked this post
-            existing_likes = like_ref.get()
-            likes_list = list(existing_likes)
-            if len(likes_list) == 0:
-                return jsonify({"message": "You haven't liked this post"}), 400
+            # Find and delete the user's like
+            likes = query_documents('likes', [
+                ('postId', '==', post_id),
+                ('userId', '==', user_id)
+            ])
             
-            # Delete the like
-            for like in likes_list:
-                db.collection('likes').document(like.id).delete()
+            if not likes:
+                return jsonify({"error": "Like not found"}), 404
             
-            # Get the post's like count and decrement it
-            post_data = post.to_dict()
-            current_likes = post_data.get('likes', 0)
-            if current_likes > 0:
-                post_ref.update({'likes': current_likes - 1})
+            success = delete_document('likes', likes[0]['id'])
+            if success:
+                return jsonify({"message": "Post unliked successfully"})
+            return jsonify({"error": "Failed to unlike post"}), 500
             
-            return jsonify({"message": "Post unliked successfully"})
         except Exception as e:
             return jsonify({"error": str(e)}), 500 

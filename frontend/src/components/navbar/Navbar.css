@@ -6,12 +6,17 @@
 
 /* CSS Variables */
 :root {
-  /* Colors */
-  --primary-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
-  --hover-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
+  /* Navbar specific variables */
   --nav-height: 70px;
   --nav-height-mobile: 60px;
   --bottom-nav-height: 60px;
+  
+  /* Gradients */
+  --primary-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+  --hover-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
+  --badge-gradient: linear-gradient(135deg, #e74c3c, #c0392b);
+  
+  /* Colors */
   --primary: #3498db;
   --primary-blue: #0095f6;
   --primary-hover: #1aa6ff;
@@ -46,9 +51,6 @@
   
   /* Transitions */
   --transition-normal: all 0.2s ease;
-  
-  /* Badge gradient */
-  --badge-gradient: linear-gradient(135deg, #e74c3c, #c0392b);
 }
 
 /* Base Styles */
@@ -243,7 +245,7 @@
 
 .avatar-button:hover {
   transform: scale(1.05);
-  /* box-shadow: 0 0 0 2px rgba(0, 149, 246, 0.3); */
+  box-shadow: 0 0 0 2px rgba(0, 149, 246, 0.3);
 }
 
 .letter-avatar {
@@ -392,6 +394,18 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 

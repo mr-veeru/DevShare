@@ -201,12 +201,12 @@ export const createComment = async (postId: string, commentData: any) => {
   }
 };
 
-export const updateComment = async (commentId: string, commentData: any) => {
+export const updateComment = async (commentId: string, data: any) => {
   try {
-    const response = await api.put(`/comments/${commentId}`, commentData);
+    const response = await api.put(`/comments/${commentId}`, data);
     return response.data;
   } catch (error) {
-    return handleError(error, 'updating comment');
+    throw error;  // Let the component handle the error
   }
 };
 
@@ -215,7 +215,7 @@ export const deleteComment = async (commentId: string) => {
     const response = await api.delete(`/comments/${commentId}`);
     return response.data;
   } catch (error) {
-    return handleError(error, 'deleting comment');
+    throw error;  // Let the component handle the error
   }
 };
 
@@ -225,8 +225,7 @@ export const getCommentLikes = async (commentId: string) => {
     const response = await api.get(`/comments/${commentId}/likes`);
     return response.data;
   } catch (error) {
-    console.error('Error getting comment likes:', error);
-    throw error;
+    return handleError(error, 'getting comment likes');
   }
 };
 
@@ -235,8 +234,7 @@ export const likeComment = async (commentId: string) => {
     const response = await api.post(`/comments/${commentId}/likes`);
     return response.data;
   } catch (error) {
-    console.error('Error liking comment:', error);
-    throw error;
+    return handleError(error, 'liking comment');
   }
 };
 
@@ -245,8 +243,7 @@ export const unlikeComment = async (commentId: string) => {
     const response = await api.delete(`/comments/${commentId}/likes`);
     return response.data;
   } catch (error) {
-    console.error('Error unliking comment:', error);
-    throw error;
+    return handleError(error, 'unliking comment');
   }
 };
 
@@ -256,8 +253,7 @@ export const getReplies = async (commentId: string) => {
     const response = await api.get(`/comments/${commentId}/replies`);
     return response.data;
   } catch (error) {
-    console.error('Error getting replies:', error);
-    throw error;
+    return handleError(error, 'getting replies');
   }
 };
 
@@ -266,28 +262,25 @@ export const createReply = async (commentId: string, replyData: any) => {
     const response = await api.post(`/comments/${commentId}/replies`, replyData);
     return response.data;
   } catch (error) {
-    console.error('Error creating reply:', error);
-    throw error;
+    return handleError(error, 'creating reply');
   }
 };
 
-export const updateReply = async (replyId: string, replyData: any) => {
+export const updateReply = async (replyId: string, data: any) => {
   try {
-    const response = await api.put(`/replies/${replyId}`, replyData);
+    const response = await api.put(`/comments/replies/${replyId}`, data);
     return response.data;
   } catch (error) {
-    console.error('Error updating reply:', error);
-    throw error;
+    throw error;  // Let the component handle the error
   }
 };
 
 export const deleteReply = async (replyId: string) => {
   try {
-    const response = await api.delete(`/replies/${replyId}`);
+    const response = await api.delete(`/comments/replies/${replyId}`);
     return response.data;
   } catch (error) {
-    console.error('Error deleting reply:', error);
-    throw error;
+    throw error;  // Let the component handle the error
   }
 };
 
@@ -325,18 +318,16 @@ export const getNotifications = async () => {
     const response = await api.get('/notifications');
     return response.data;
   } catch (error) {
-    console.error('Error getting notifications:', error);
-    throw error;
+    return handleError(error, 'getting notifications');
   }
 };
 
 export const createNotification = async (notificationData: any) => {
   try {
-    const response = await api.post('/notifications/create', notificationData);
+    const response = await api.post('/notifications', notificationData);
     return response.data;
   } catch (error) {
-    console.error('Error creating notification:', error);
-    throw error;
+    return handleError(error, 'creating notification');
   }
 };
 
@@ -345,8 +336,7 @@ export const updateNotification = async (notificationId: string, updateData: any
     const response = await api.put(`/notifications/${notificationId}`, updateData);
     return response.data;
   } catch (error) {
-    console.error('Error updating notification:', error);
-    throw error;
+    return handleError(error, 'updating notification');
   }
 };
 
@@ -355,18 +345,17 @@ export const deleteNotification = async (notificationId: string) => {
     const response = await api.delete(`/notifications/${notificationId}`);
     return response.data;
   } catch (error) {
-    console.error('Error deleting notification:', error);
-    throw error;
+    return handleError(error, 'deleting notification');
   }
 };
 
+// Test endpoints
 export const testBackend = async () => {
   try {
     const response = await api.get('/test');
     return response.data;
   } catch (error) {
-    console.error('Error testing backend:', error);
-    throw error;
+    return handleError(error, 'testing backend');
   }
 };
 
@@ -375,8 +364,7 @@ export const getProtectedData = async () => {
     const response = await api.get('/protected');
     return response.data;
   } catch (error) {
-    console.error('Error getting protected data:', error);
-    throw error;
+    return handleError(error, 'getting protected data');
   }
 };
 
