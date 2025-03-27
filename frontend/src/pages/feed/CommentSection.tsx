@@ -36,7 +36,7 @@ import { getComments, createComment, updateComment, deleteComment, getCommentLik
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { FaEdit, FaTrash, FaHeart, FaRegHeart } from 'react-icons/fa';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 /**
  * Comment interface representing the structure of a comment or reply
@@ -379,8 +379,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
       return;
     }
     
-    if (e && e.key === ' ') {
-      e.preventDefault(); // Prevent page scroll on space
+    // Only prevent default for space in interactive elements like buttons
+    // This ensures space still works in text inputs
+    if (e && e.key === ' ' && e.target instanceof HTMLButtonElement) {
+      e.preventDefault(); // Prevent page scroll on space, but only for buttons
     }
     
     if (!user) {
@@ -477,7 +479,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
         aria-labelledby={`${commentId}-username`}
         aria-describedby={`${commentId}-text`}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          // Only prevent default for Enter and Space when the div itself is the target
+          // This allows space to work normally in child input elements
+          if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
             e.preventDefault();
           }
         }}
@@ -564,7 +568,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
+                      e.preventDefault(); // This is fine for buttons
                       setReplyingTo(replyingTo === comment.id ? null : comment.id);
                     }
                   }}
@@ -589,38 +593,35 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
               {user?.uid === comment.userId && (
                 <>
                   <button 
-                    onClick={() => handleEdit(comment)} 
-                    className="action-button"
-                    title={isReply ? "Edit" : "Edit"}
+                    onClick={() => handleEdit(comment)}
+                    className="edit-button"
                     aria-label={`Edit ${isReply ? 'reply' : 'comment'}`}
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
+                        e.preventDefault(); // This is fine for buttons
                         handleEdit(comment);
                       }
                     }}
                   >
-                    <FaEdit /> {isReply ? "Edit" : "Edit"}
+                    Edit
                   </button>
                   <button 
                     onClick={() => {
                       setCommentToDelete(comment.id);
                       setShowDeleteDialog(true);
                     }}
-                    className="action-button"
-                    title={isReply ? "Delete" : "Delete"}
+                    className="delete-button"
                     aria-label={`Delete ${isReply ? 'reply' : 'comment'}`}
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setCommentToDelete(comment.id);
-                        setShowDeleteDialog(true);
+                        e.preventDefault(); // This is fine for buttons
+                        handleDelete(comment.id);
                       }
                     }}
                   >
-                    <FaTrash /> {isReply ? "Delete" : "Delete"}
+                    Delete
                   </button>
                 </>
               )}
@@ -678,13 +679,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
                 ...prev,
                 [comment.id]: !prev[comment.id]
               }))}
-              className="toggle-replies"
-              aria-expanded={showReplies[comment.id] || false}
-              aria-controls={`replies-${comment.id}`}
+              className={`toggle-replies ${showReplies[comment.id] ? 'expanded' : ''}`}
+              aria-label={showReplies[comment.id] ? 'Hide replies' : 'Show replies'}
+              aria-expanded={showReplies[comment.id] ? 'true' : 'false'}
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
+                  e.preventDefault(); // This is fine for buttons
                   setShowReplies(prev => ({
                     ...prev,
                     [comment.id]: !prev[comment.id]
@@ -723,6 +724,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
           aria-label="Write a comment"
           rows={3}
           onKeyDown={(e) => {
+            // Only handle Enter key for form submission
+            // Do NOT prevent default for space or any other keys
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
               handleSubmit(e);
@@ -758,7 +761,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
+                      e.preventDefault(); // This is fine for buttons
                       handleShowMoreComments();
                     }
                   }}
@@ -775,7 +778,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
+                      e.preventDefault(); // This is fine for buttons
                       handleShowLessComments();
                     }
                   }}

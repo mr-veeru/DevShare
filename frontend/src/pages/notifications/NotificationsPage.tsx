@@ -29,7 +29,8 @@ export enum NotificationType {
   LIKE = 'like',
   COMMENT = 'comment',
   COMMENT_LIKE = 'comment_like',
-  REPLY = 'reply'
+  REPLY = 'reply',
+  REPLY_LIKE = 'reply_like',
 }
 
 // Notification interface
@@ -44,6 +45,7 @@ export interface Notification {
   read: boolean;
   createdAt: Timestamp;
   commentId?: string;
+  content?: string;
 }
 
 /**
@@ -300,6 +302,15 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             ? ' replied to your comment on '
             : ' interacted with '}
           <strong>"{notification.postTitle}"</strong>
+          
+          {notification.content && 
+           (notification.type === NotificationType.COMMENT ||
+            notification.type === NotificationType.COMMENT_LIKE || 
+            notification.type === NotificationType.REPLY) && (
+            <div className="notification-comment-content">
+              <blockquote>"{notification.content}"</blockquote>
+            </div>
+          )}
         </div>
         
         <div className="notification-time">

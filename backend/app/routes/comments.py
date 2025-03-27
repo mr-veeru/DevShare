@@ -125,11 +125,8 @@ def comment_operations(comment_id):
             batch = db.batch()
             comment_ref = db.collection('comments').document(comment_id)
             
-            # Mark the comment as deleted
-            batch.update(comment_ref, {
-                'deleted': True,
-                'deletedAt': firestore.SERVER_TIMESTAMP
-            })
+            # Delete the comment completely (not just mark as deleted)
+            batch.delete(comment_ref)
             
             # Delete all notifications related to this comment
             delete_notifications(comment_id=comment_id)
@@ -137,13 +134,10 @@ def comment_operations(comment_id):
             # Get all replies for this comment
             replies = query_documents('comments', [('parentId', '==', comment_id)])
             
-            # Mark all replies as deleted and delete their notifications
+            # Delete all replies completely (not just mark as deleted)
             for reply in replies:
                 reply_ref = db.collection('comments').document(reply['id'])
-                batch.update(reply_ref, {
-                    'deleted': True,
-                    'deletedAt': firestore.SERVER_TIMESTAMP
-                })
+                batch.delete(reply_ref)
                 
                 # Delete notifications for each reply
                 delete_notifications(comment_id=reply['id'])
@@ -226,10 +220,16 @@ def comment_likes(comment_id):
             # Create notification for the comment owner (if not self-like)
             comment_owner_id = comment.get('userId')
             if comment_owner_id and comment_owner_id != user_id:
+                # Get post title for the notification
+                post_id = comment.get('postId')
+                post_data = get_document('posts', post_id)
+                post_title = post_data.get('title') if post_data else "a post"
+                
                 create_notification(
                     recipient_id=comment_owner_id,
                     sender_id=user_id,
                     post_id=comment.get('postId'),
+                    post_title=post_title,  # Include post title in notification
                     comment_id=comment_id,
                     notification_type='comment_like',
                     content=comment.get('text', '')[:100]  # Truncate content for notification
@@ -318,12 +318,29 @@ def comment_replies(comment_id):
             response_data = get_document('comments', reply_id)
             
             # Create notification for the comment owner (if not self-reply)
-            comment_owner_id = comment.get('userId')
-            if comment_owner_id and comment_owner_id != user_id:
+            if comment and comment.get('userId') != user_id:
+                # Get post title for the notification
+                post_id = comment.get('postId')
+                post_data = get_document('posts', post_id)
+                post_title = post_data.get('title') if post_data else "a post"
+                
                 create_notification(
-                    recipient_id=comment_owner_id,
+                    recipient_id=comment.get('userId'),
                     sender_id=user_id,
-                    post_id=comment.get('postId'),
+                    post_id=post_id,
+                    post_title=post_title,  # Include post title in notification
+                    comment_id=comment_id,
+                    notification_type='reply',
+                    content=reply_data.get('text', '')[:100]  # Truncate content for notification
+                )
+
+            # Also notify the post owner (if different from comment owner and not self)
+            if post_data and post_data.get('userId') != user_id and post_data.get('userId') != comment.get('userId'):
+                create_notification(
+                    recipient_id=post_data.get('userId'),
+                    sender_id=user_id,
+                    post_id=post_id,
+                    post_title=post_title,  # Include post title in notification
                     comment_id=comment_id,
                     notification_type='reply',
                     content=reply_data.get('text', '')[:100]  # Truncate content for notification
@@ -367,11 +384,8 @@ def reply_operations(reply_id):
 
     elif request.method == 'DELETE':
         try:
-            # Mark the reply as deleted
-            success = update_document('comments', reply_id, {
-                'deleted': True,
-                'deletedAt': firestore.SERVER_TIMESTAMP
-            })
+            # Completely delete the reply instead of just marking it
+            success = delete_document('comments', reply_id)
             
             if not success:
                 return jsonify({"error": "Failed to delete reply"}), 500

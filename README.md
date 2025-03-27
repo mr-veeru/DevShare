@@ -18,18 +18,21 @@ DevShare is a modern social networking platform built specifically for developer
 - **Posts & Projects**: Share development projects with title, description, and GitHub links
 - **Skills Tagging**: Color-coded and icon-enhanced skill tags for better discovery
 - **Advanced Search**: Search posts by title, description, or skills
-- **Like System**: Like posts to show appreciation and save favorites
+- **Like System**: Like posts to show appreciation
 
 ### Enhanced Comment System
 - **Threaded Comments**: Support for nested replies in comment threads
+- **Comment Pagination**: "Show more/less comments" controls to manage content density
 - **Real-time Updates**: Comments update in real-time without page refresh
 - **Comment Management**: Edit and delete functionality for your own comments
-- **Pagination Controls**: "Show more/less comments" to manage content density
 - **Owner Indicators**: Clear visuals showing which comments are yours
+- **Complete Deletion**: Comments and replies are fully removed when deleted
 
-### Notifications
+### Comprehensive Notification System
 - **Interaction Alerts**: Get notified about likes, comments, and replies
-- **Context-Rich**: Notifications include the relevant post and action context
+- **Context-Rich**: Notifications include the post title and comment content
+- **Multiple Recipients**: Both post owners and comment owners get notifications for replies
+- **Cleanup on Deletion**: Notifications are removed when associated content is deleted
 - **Real-time Updates**: Instant notification delivery
 - **Clear Status**: Read/unread indicators
 
@@ -68,6 +71,7 @@ DevShare is a modern social networking platform built specifically for developer
 - **CORS**: Cross-Origin Resource Sharing support
 - **Environment**: Configurable via dotenv
 - **Error Handling**: Standardized error responses
+- **Batch Operations**: Firestore batching for transaction-like operations
 
 ## Project Structure
 
@@ -115,7 +119,7 @@ DevShare is a modern social networking platform built specifically for developer
 - **Color-coded Categories**: Skills are color-coded based on their first letter
 - **Custom Icons**: Popular technologies have unique icons (React, Python, JavaScript, etc.)
 - **Interactive Styling**: Hover effects for better engagement
-- **Consistent Design**: Skill tags are styled consistently throughout the platform
+- **Consistent Design**: Same skill tag styling used across posts and profiles
 
 ### Interactive Post System
 - **Rich Content**: Support for detailed project descriptions
@@ -124,11 +128,20 @@ DevShare is a modern social networking platform built specifically for developer
 - **Owner Controls**: Edit and delete options for your own posts
 - **Optimistic UI Updates**: UI updates immediately before server confirmation
 
-### Comprehensive Comment System
-- **Nested Replies**: Support for multi-level discussions
+### Multi-level Comment System
+- **Nested Replies**: Full support for threaded discussions
 - **Comment Controls**: Edit, delete options for your comments
 - **Responsive Design**: Adapts to all screen sizes
 - **Load Management**: Show more/less functionality to manage large threads
+- **Full Deletion**: Comments and replies are completely removed when deleted
+- **Content Preview**: Comment content visible in notifications for context
+
+### Smart Notification System
+- **Comprehensive Alerts**: Notifications for likes, comments, replies, and comment likes
+- **Dual Recipients**: Both post owners and comment owners receive notifications
+- **Content Context**: Shows the post title and relevant comment text
+- **Proper Management**: Delete notifications when content is deleted
+- **Clear Visual Indicators**: Unread status and contextual icons
 
 ## Getting Started
 
@@ -210,6 +223,3 @@ Planned features for upcoming releases:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
-
-This project is licensed under the MIT License. 

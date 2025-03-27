@@ -330,4 +330,24 @@
     width: 100%;
     justify-content: space-between;
   }
+}
+
+/* Add notification comment content styling */
+.notification-comment-content {
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.notification-comment-content blockquote {
+  margin: 0;
+  padding-left: 10px;
+  border-left: 3px solid var(--border-medium, #d1d5db);
+  color: var(--text-tertiary, #6b7280);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 } 
