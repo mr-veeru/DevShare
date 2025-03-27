@@ -27,7 +27,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../config/firebase";
-import { FaComment, FaShare, FaEllipsisV, FaGithub, FaWhatsapp, FaTwitter, FaFacebook, FaCopy, FaHeart, FaRegHeart, FaChevronDown, FaChevronUp, FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
+import { FaEllipsisV, FaGithub, FaWhatsapp, FaFacebook, FaCopy, FaHeart, FaRegHeart, FaChevronDown, FaChevronUp, FaEdit, FaTrash, FaSave, FaTimes, FaRegComment, FaShareAlt, FaLinkedin } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import CommentSection from "./CommentSection";
 import "./Post.css";
@@ -54,6 +55,7 @@ interface PostProps {
     githubLink?: string;
     skills?: string;
     likes?: number;
+    comments?: Comment[];
   };
   isCommentsOpen?: boolean;
   onCommentToggle?: (postId: string) => void;
@@ -139,9 +141,48 @@ function Post(props: PostProps) {
       }
     };
 
+    // Add scroll event handler to close menus
+    const handleScroll = () => {
+      if (showShareOptions) {
+        setShowShareOptions(false);
+      }
+      if (showOptions) {
+        setShowOptions(false);
+      }
+    };
+
+    // Add event listeners
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('scroll', handleScroll, true);
+
+    // Add global click handler to handle any click on the document
+    const handleGlobalClick = (event: MouseEvent) => {
+      // Only process if the click target is not inside our menus/buttons
+      const isShareMenuClick = shareMenuRef.current?.contains(event.target as Node) || 
+                              shareButtonRef.current?.contains(event.target as Node);
+      const isOptionsMenuClick = optionsMenuRef.current?.contains(event.target as Node) || 
+                                optionsButtonRef.current?.contains(event.target as Node);
+      
+      if (!isShareMenuClick && !isOptionsMenuClick) {
+        // Close any open menus if click is elsewhere on the document
+        if (showShareOptions) {
+          setShowShareOptions(false);
+        }
+        if (showOptions) {
+          setShowOptions(false);
+        }
+      }
+    };
+    
+    // Only add the global handler if menus are open
+    if (showShareOptions || showOptions) {
+      document.addEventListener('click', handleGlobalClick, { capture: true });
+    }
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('scroll', handleScroll, true);
+      document.removeEventListener('click', handleGlobalClick, { capture: true });
     };
   }, [showShareOptions, showOptions]);
 
@@ -331,11 +372,14 @@ function Post(props: PostProps) {
       case 'whatsapp':
         window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + postUrl)}`, '_blank');
         break;
-      case 'twitter':
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(postUrl)}`, '_blank');
+      case 'x':
+        window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(postUrl)}`, '_blank');
         break;
       case 'facebook':
         window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`, '_blank');
+        break;
+      case 'linkedin':
+        window.open(`https://www.linkedin.com/shareArticle?url=${encodeURIComponent(postUrl)}`, '_blank');
         break;
       case 'copy':
         navigator.clipboard.writeText(postUrl)
@@ -346,13 +390,15 @@ function Post(props: PostProps) {
     setShowShareOptions(false);
   };
 
-  // Modified to close comments when share options are opened
+  // Modified to close comments when share options are opened and properly toggle share options
   const toggleShareOptions = () => {
-    // If opening share options, close comments
+    // Toggle the share options state
+    setShowShareOptions(prevState => !prevState);
+    
+    // If share options was previously closed and we're opening it, also close comments if open
     if (!showShareOptions && isCommentsOpen && onCommentToggle) {
       onCommentToggle(post.id);
     }
-    setShowShareOptions(!showShareOptions);
   };
 
   // Function to truncate and highlight text
@@ -473,6 +519,30 @@ function Post(props: PostProps) {
                 className="edit-skills"
                 placeholder="React, Node.js, TypeScript"
               />
+              {editedSkills && (
+                <div className="skills-preview">
+                  <small>Preview:</small>
+                  <div className="skills-tags">
+                    {editedSkills.split(',').map((skill, index) => {
+                      const trimmedSkill = skill.trim();
+                      if (!trimmedSkill) return null;
+                      
+                      const firstLetter = trimmedSkill.charAt(0).toLowerCase();
+                      const skillLower = trimmedSkill.toLowerCase();
+                      return (
+                        <span 
+                          key={index} 
+                          className="skill-tag"
+                          data-first-letter={firstLetter}
+                          data-skill={skillLower}
+                        >
+                          {trimmedSkill}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor={`github-${post.id}`}>
@@ -516,14 +586,26 @@ function Post(props: PostProps) {
             {renderDescription()}
             {post.skills && (
               <div className="skills-container">
+                <h4>Skills</h4>
                 <div className="skills-tags">
-                  {post.skills.split(',').map((skill, index) => (
-                    <span key={index} className="skill-tag">
-                      {searchQuery 
-                        ? highlightText(skill.trim().toUpperCase()) 
-                        : skill.trim().toUpperCase()}
-                    </span>
-                  ))}
+                  {post.skills.split(',').map((skill, index) => {
+                    const trimmedSkill = skill.trim();
+                    const firstLetter = trimmedSkill.charAt(0).toLowerCase();
+                    const skillLower = trimmedSkill.toLowerCase();
+                    
+                    return (
+                      <span 
+                        key={index} 
+                        className="skill-tag"
+                        data-first-letter={firstLetter}
+                        data-skill={skillLower}
+                      >
+                        {searchQuery 
+                          ? highlightText(trimmedSkill) 
+                          : trimmedSkill}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -537,8 +619,13 @@ function Post(props: PostProps) {
               target="_blank" 
               rel="noopener noreferrer"
               className="github-link"
+              aria-label="View project on GitHub"
             >
-              <FaGithub /> View on GitHub
+              <FaGithub className="github-icon" /> 
+              <span>View project on GitHub</span>
+              <svg className="github-arrow" width="14" height="14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.09 11.09L5.5 12.5L11 7L5.5 1.5L4.09 2.91L7.67 6.5H1V8.5H7.67L4.09 11.09Z" fill="currentColor"/>
+              </svg>
             </a>
           </div>
         )}
@@ -546,11 +633,14 @@ function Post(props: PostProps) {
       
       <div className="post-actions">
         <button 
-          className={`action-button ${liked ? "liked" : ""}`}
+          className={`action-button ${liked ? 'liked' : ''}`}
           onClick={handleLike}
+          aria-label={liked ? "Unlike post" : "Like post"}
         >
-          {liked ? <FaHeart /> : <FaRegHeart />} {likes}
+          {liked ? <FaHeart /> : <FaRegHeart />}
+          <span>{likes}</span>
         </button>
+
         <button 
           className="action-button"
           onClick={() => {
@@ -560,22 +650,28 @@ function Post(props: PostProps) {
             }
             if (onCommentToggle) onCommentToggle(post.id);
           }}
+          aria-label="View comments"
         >
-          <FaComment /> {totalCommentCount}
+          <FaRegComment />
+          <span>{totalCommentCount}</span>
         </button>
+
         <div className="share-container">
           <button 
-            ref={shareButtonRef}
             className="action-button"
             onClick={toggleShareOptions}
+            ref={shareButtonRef}
+            aria-label="Share post"
           >
-            <FaShare />
+            <FaShareAlt />
+            <span>Share</span>
           </button>
           {showShareOptions && (
             <div ref={shareMenuRef} className="share-options">
               <button onClick={() => handleShare('whatsapp')}><FaWhatsapp /> WhatsApp</button>
-              <button onClick={() => handleShare('twitter')}><FaTwitter /> Twitter</button>
+              <button onClick={() => handleShare('x')}><FaXTwitter /> X</button>
               <button onClick={() => handleShare('facebook')}><FaFacebook /> Facebook</button>
+              <button onClick={() => handleShare('linkedin')}><FaLinkedin /> LinkedIn</button>
               <button onClick={() => handleShare('copy')}><FaCopy /> Copy Link</button>
             </div>
           )}

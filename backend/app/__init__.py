@@ -2,7 +2,7 @@
 Flask application factory module.
 This module contains the application factory function that creates and configures the Flask app.
 """
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials
@@ -37,6 +37,22 @@ def create_app():
 
     # Force trailing slashes to prevent redirect issues with CORS
     app.url_map.strict_slashes = False
+    
+    # Add a global OPTIONS route handler to properly handle preflight requests
+    @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
+    @app.route('/<path:path>', methods=['OPTIONS'])
+    def handle_options(path):
+        response = app.make_default_options_response()
+        # Add CORS headers
+        headers = {
+            'Access-Control-Allow-Origin': 'http://localhost:3000',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Max-Age': '3600'
+        }
+        for key, value in headers.items():
+            response.headers[key] = value
+        return response
 
     # Initialize Firebase Admin with credentials from environment variables
     cred = credentials.Certificate({

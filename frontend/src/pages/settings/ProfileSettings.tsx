@@ -23,7 +23,7 @@ import {
   query, 
   where, 
   getDocs, 
-  writeBatch 
+  writeBatch
 } from 'firebase/firestore';
 import { 
   FaEye, 
@@ -46,6 +46,9 @@ interface PasswordData {
   confirmPassword: string;
 }
 
+// Types of status messages
+type MessageType = 'success' | 'error' | null;
+
 /**
  * ProfileSettings Component
  * Main settings page for user profile management
@@ -63,7 +66,7 @@ const ProfileSettings = () => {
   });
   const [deactivatePassword, setDeactivatePassword] = useState('');
   
-  // Password visibility states using custom hook
+  // Password visibility using custom hook
   const {
     showPassword: showCurrentPassword,
     showConfirmPassword: showNewPassword,
@@ -79,29 +82,36 @@ const ProfileSettings = () => {
   } = usePasswordToggle();
   
   // UI states
-  const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<MessageType>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
 
+  // Display message helper functions
+  const showSuccessMessage = (msg: string) => {
+    setMessage(msg);
+    setMessageType('success');
+  };
+  
+  const showErrorMessage = (msg: string) => {
+    setMessage(msg);
+    setMessageType('error');
+  };
+
   // Auto-dismiss messages after 5 seconds
   useEffect(() => {
-    if (error || successMessage) {
+    if (message) {
       const timer = setTimeout(() => {
-        setError(null);
-        setSuccessMessage(null);
+        setMessage(null);
+        setMessageType(null);
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [error, successMessage]);
+  }, [message]);
 
   // Clear password fields on mount
   useEffect(() => {
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
+    resetPasswordForm();
   }, []);
 
   /**
@@ -126,7 +136,7 @@ const ProfileSettings = () => {
         );
         
         if (isTakenByAnotherUser) {
-          setError("Username already exists. Please choose a different one.");
+          showErrorMessage("Username already exists. Please choose a different one.");
           return;
         }
       }
@@ -134,40 +144,38 @@ const ProfileSettings = () => {
       // Update profile
       await updateProfile(user, { displayName });
       
-      // Update all user's posts with new username
-      const userPostsQuery = query(collection(db, "posts"), where("userId", "==", user.uid));
-      const userPosts = await getDocs(userPostsQuery);
+      // Update all user content with new username
+      await updateUsernameInUserContent(user.uid, displayName);
       
-      const batch = writeBatch(db);
-      userPosts.docs.forEach((doc) => {
-        batch.update(doc.ref, { username: displayName });
-      });
-      
-      // Update all user's comments with new username
-      const userCommentsQuery = query(collection(db, "comments"), where("userId", "==", user.uid));
-      const userComments = await getDocs(userCommentsQuery);
-      
-      userComments.docs.forEach((doc) => {
-        batch.update(doc.ref, { username: displayName });
-      });
-      
-      // Update all user's replies with new username
-      const userRepliesQuery = query(collection(db, "replies"), where("userId", "==", user.uid));
-      const userReplies = await getDocs(userRepliesQuery);
-      
-      userReplies.docs.forEach((doc) => {
-        batch.update(doc.ref, { username: displayName });
-      });
-      
-      await batch.commit();
-      
-      setSuccessMessage("Profile updated successfully!");
+      showSuccessMessage("Profile updated successfully!");
     } catch (error) {
       console.error("Error updating profile:", error);
-      setError("Failed to update profile. Please try again.");
+      showErrorMessage("Failed to update profile. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  /**
+   * Updates username across all user content (posts, comments, replies)
+   */
+  const updateUsernameInUserContent = async (userId: string, newUsername: string) => {
+    const batch = writeBatch(db);
+    const collections = ['posts', 'comments'];
+    
+    for (const collectionName of collections) {
+      const userContentQuery = query(
+        collection(db, collectionName), 
+        where("userId", "==", userId)
+      );
+      const userContent = await getDocs(userContentQuery);
+      
+      userContent.docs.forEach((document) => {
+        batch.update(document.ref, { username: newUsername });
+      });
+    }
+    
+    await batch.commit();
   };
 
   /**
@@ -183,21 +191,17 @@ const ProfileSettings = () => {
       if (!validatePasswordFields()) return;
 
       // Reauthenticate user
-      const credential = EmailAuthProvider.credential(
-        user.email!,
-        passwordData.currentPassword
-      );
-      await reauthenticateWithCredential(user, credential);
+      await reauthenticateUser(passwordData.currentPassword);
       
       // Update password
       await updatePassword(user, passwordData.newPassword);
       
       // Reset form and show success
       resetPasswordForm();
-      setSuccessMessage("Your password has been successfully updated!");
+      showSuccessMessage("Your password has been successfully updated!");
       
     } catch (error: any) {
-      handlePasswordError(error);
+      handleAuthError(error, "changing password");
     } finally {
       setIsSubmitting(false);
     }
@@ -212,42 +216,41 @@ const ProfileSettings = () => {
     try {
       setIsSubmitting(true);
       
-      // Check if user is Google-authenticated
-      if (isGoogleUser()) {
-        // For Google users, skip password verification
-        // Delete user data and account directly
-        await deleteUserData(user.uid);
-        await deleteUser(user);
-        navigate('/');
-      } else {
-        // For email/password users, continue with password verification
-        if (!deactivatePassword.trim()) {
-          setError("Please enter your password to deactivate account");
-          return;
-        }
-
-        // Re-authenticate user
-        const credential = EmailAuthProvider.credential(
-          user.email!,
-          deactivatePassword
-        );
-        await reauthenticateWithCredential(user, credential);
-
-        // Delete user data
-        await deleteUserData(user.uid);
-
-        // Delete user account
-        await deleteUser(user);
-        navigate('/');
+      // Validate password for deactivation
+      if (!deactivatePassword && !isGoogleUser()) {
+        showErrorMessage("Please enter your password to deactivate your account.");
+        return;
       }
       
+      // Reauthenticate if email/password user
+      if (!isGoogleUser()) {
+        await reauthenticateUser(deactivatePassword);
+      }
+      
+      // Delete all user data
+      await deleteUserData(user.uid);
+      
+      // Delete the user account
+      await deleteUser(user);
+      
+      // Navigate to home page
+      navigate('/');
     } catch (error: any) {
-      handleDeactivationError(error);
+      handleAuthError(error, "deactivating account");
     } finally {
       setIsSubmitting(false);
       setShowDeactivateDialog(false);
-      setDeactivatePassword('');
     }
+  };
+
+  /**
+   * Reauthenticate user with current password
+   */
+  const reauthenticateUser = async (password: string) => {
+    if (!user || !user.email) throw new Error("User not logged in or missing email");
+    
+    const credential = EmailAuthProvider.credential(user.email, password);
+    await reauthenticateWithCredential(user, credential);
   };
 
   /**
@@ -255,49 +258,54 @@ const ProfileSettings = () => {
    */
   const deleteUserData = async (userId: string) => {
     const batch = writeBatch(db);
-    const collections = ['posts', 'comments', 'likes'];
+    const collections = ['posts', 'comments', 'likes', 'notifications'];
     
     for (const collectionName of collections) {
-      const userDataQuery = query(
+      const userDocsQuery = query(
         collection(db, collectionName), 
         where("userId", "==", userId)
       );
-      const userDocs = await getDocs(userDataQuery);
-      userDocs.docs.forEach((doc) => batch.delete(doc.ref));
+      const userDocs = await getDocs(userDocsQuery);
+      
+      userDocs.docs.forEach((document) => {
+        batch.delete(document.ref);
+      });
     }
-
+    
     await batch.commit();
   };
 
   /**
-   * Validate password change fields
+   * Validate password fields
    */
   const validatePasswordFields = (): boolean => {
-    if (!passwordData.currentPassword.trim()) {
-      setError("Please enter your current password");
+    const { currentPassword, newPassword, confirmPassword } = passwordData;
+    
+    if (!currentPassword) {
+      showErrorMessage("Please enter your current password.");
       return false;
     }
     
-    if (!passwordData.newPassword.trim()) {
-      setError("Please enter a new password");
+    if (newPassword.length < 8) {
+      showErrorMessage("New password must be at least 8 characters.");
       return false;
     }
     
-    if (!passwordData.confirmPassword.trim()) {
-      setError("Please confirm your new password");
+    if (!/[A-Z]/.test(newPassword)) {
+      showErrorMessage("New password must contain at least one uppercase letter.");
       return false;
     }
-
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setError("New passwords don't match. Please try again.");
+    
+    if (!/[0-9]/.test(newPassword)) {
+      showErrorMessage("New password must contain at least one number.");
       return false;
     }
-
-    if (passwordData.newPassword.length < 6) {
-      setError("Password must be at least 6 characters long.");
+    
+    if (newPassword !== confirmPassword) {
+      showErrorMessage("New passwords do not match.");
       return false;
     }
-
+    
     return true;
   };
 
@@ -310,299 +318,228 @@ const ProfileSettings = () => {
       newPassword: '',
       confirmPassword: ''
     });
+    setDeactivatePassword('');
   };
 
   /**
-   * Handle password change errors
+   * Handle authentication errors
    */
-  const handlePasswordError = (error: any) => {
-    let message = "Unable to update password. Please try again.";
+  const handleAuthError = (error: any, action: string) => {
+    console.error(`Error ${action}:`, error);
     
-    switch (error.code) {
-      case 'auth/invalid-credential':
-      case 'auth/wrong-password':
-        message = "Current password is incorrect. Please try again.";
-        break;
-      case 'auth/weak-password':
-        message = "New password is too weak. Please choose a stronger password.";
-        break;
-      case 'auth/requires-recent-login':
-        message = "For security reasons, please log out and log back in before changing your password.";
-        break;
+    if (error.code === 'auth/wrong-password' || error.code === 'auth/user-mismatch') {
+      showErrorMessage("Incorrect password. Please try again.");
+    } else if (error.code === 'auth/too-many-requests') {
+      showErrorMessage("Too many attempts. Please try again later.");
+    } else if (error.code === 'auth/requires-recent-login') {
+      showErrorMessage("For security reasons, please log out and log back in before trying again.");
+    } else {
+      showErrorMessage(`Failed to ${action}. Please try again.`);
     }
-
-    setError(message);
   };
 
   /**
-   * Handle deactivation errors
+   * Check if user is signed in with Google
    */
-  const handleDeactivationError = (error: any) => {
-    let message = "Unable to deactivate account. Please try again.";
-    
-    switch (error.code) {
-      case 'auth/invalid-credential':
-      case 'auth/wrong-password':
-        message = "Incorrect password. Please try again.";
-        break;
-      case 'auth/requires-recent-login':
-        message = "For security reasons, please log out and log back in before deactivating your account.";
-        break;
-    }
-
-    setError(message);
-  };
-
   const isGoogleUser = () => {
-    const user = auth.currentUser;
-    return user?.providerData.some(provider => provider.providerId === 'google.com') || false;
+    if (!user) return false;
+    
+    const providerData = user.providerData;
+    return providerData.some(provider => provider.providerId === 'google.com');
   };
+
+  // Render helper for status message
+  const renderStatusMessage = () => {
+    if (!message) return null;
+    
+    const isSuccess = messageType === 'success';
+    const Icon = isSuccess ? FaCheckCircle : FaExclamationCircle;
+    const className = `status-message ${isSuccess ? 'success' : 'error'}`;
+    
+    return (
+      <div className={className}>
+        <Icon />
+        <span>{message}</span>
+        <button onClick={() => { setMessage(null); setMessageType(null); }}>
+          <FaTimes />
+        </button>
+      </div>
+    );
+  };
+
+  // Redirect if not logged in
+  if (!user) {
+    navigate('/login');
+    return null;
+  }
 
   return (
-    <div className="settings-page">
-      {(error || successMessage) && (
-        <div className="messages-container">
-          <div className={`message ${error ? 'message-error' : 'message-success'}`}>
-            {error ? (
-              <FaExclamationCircle className="message-icon" />
-            ) : (
-              <FaCheckCircle className="message-icon" />
+    <div className="settings-container">
+      <header className="settings-header">
+        <button className="back-button" onClick={() => navigate(-1)}>
+          <FaArrowLeft /> Back
+        </button>
+        <h1>Profile Settings</h1>
+      </header>
+      
+      {renderStatusMessage()}
+      
+      <section className="settings-section">
+        <h2><FaUser /> Profile Information</h2>
+        <div className="form-group">
+          <label>Display Name</label>
+          <input
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Your display name"
+          />
+          <p className="field-help">
+            This name will be displayed on all your posts and comments.
+          </p>
+        </div>
+        
+        <button 
+          className="save-button"
+          onClick={handleSaveProfile}
+          disabled={isSubmitting || !displayName.trim()}
+        >
+          Save Changes
+        </button>
+      </section>
+      
+      {!isGoogleUser() && (
+        <section className="settings-section">
+          <h2><FaLock /> Change Password</h2>
+          <div className="form-group">
+            <label>Current Password</label>
+            <div className="password-input-wrapper">
+              <input
+                type={showCurrentPassword ? "text" : "password"}
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
+                placeholder="Enter current password"
+              />
+              <button 
+                type="button"
+                className="toggle-password"
+                onClick={toggleCurrentPassword}
+              >
+                {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+          </div>
+          
+          <div className="form-group">
+            <label>New Password</label>
+            <div className="password-input-wrapper">
+              <input
+                type={showNewPassword ? "text" : "password"}
+                value={passwordData.newPassword}
+                onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
+                placeholder="Enter new password"
+              />
+              <button 
+                type="button"
+                className="toggle-password"
+                onClick={toggleNewPassword}
+              >
+                {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            <p className="field-help">
+              Password must be at least 8 characters with at least one uppercase letter and one number.
+            </p>
+          </div>
+          
+          <div className="form-group">
+            <label>Confirm New Password</label>
+            <div className="password-input-wrapper">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
+                placeholder="Confirm new password"
+              />
+              <button 
+                type="button"
+                className="toggle-password"
+                onClick={toggleConfirmPassword}
+              >
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+          </div>
+          
+          <button 
+            className="save-button"
+            onClick={handlePasswordChange}
+            disabled={isSubmitting}
+          >
+            Update Password
+          </button>
+        </section>
+      )}
+      
+      <section className="settings-section danger-zone">
+        <h2><FaUserTimes /> Deactivate Account</h2>
+        <p className="warning-text">
+          Warning: This action is permanent. All your data will be deleted and cannot be recovered.
+        </p>
+        
+        <button 
+          className="deactivate-button"
+          onClick={() => setShowDeactivateDialog(true)}
+        >
+          Deactivate Account
+        </button>
+      </section>
+      
+      {showDeactivateDialog && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Confirm Account Deactivation</h2>
+            <p>Are you sure you want to permanently delete your account? This action cannot be undone.</p>
+            
+            {!isGoogleUser() && (
+              <div className="form-group">
+                <label>Enter your password to confirm</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showDeactivatePasswordVisibility ? "text" : "password"}
+                    value={deactivatePassword}
+                    onChange={(e) => setDeactivatePassword(e.target.value)}
+                    placeholder="Enter your password"
+                  />
+                  <button 
+                    type="button"
+                    className="toggle-password"
+                    onClick={toggleDeactivatePassword}
+                  >
+                    {showDeactivatePasswordVisibility ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
             )}
-            <span className="message-content">{error || successMessage}</span>
-            <button 
-              className="message-close"
-              onClick={() => error ? setError(null) : setSuccessMessage(null)}
-              aria-label="Close message"
-            >
-              <FaTimes />
-            </button>
+            
+            <div className="modal-actions">
+              <button 
+                className="cancel-button"
+                onClick={() => setShowDeactivateDialog(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="confirm-button"
+                onClick={handleDeactivateAccount}
+                disabled={isSubmitting || (!isGoogleUser() && !deactivatePassword)}
+              >
+                Deactivate
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-      <div className="settings-container">
-        <header className="settings-header">
-          <h1>Profile Settings</h1>
-          <button className="back-button" onClick={() => navigate('/profile')}>
-            <FaArrowLeft /> Back to Profile
-          </button>
-        </header>
-
-        {/* Profile Settings Section */}
-        <section className="settings-section">
-          <h2><FaUser /> Edit Profile</h2>
-          <div className="form-group">
-            <label htmlFor="displayName">Display Name</label>
-            <input
-              id="displayName"
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="settings-input"
-            />
-          </div>
-          <button 
-            className="save-button"
-            onClick={handleSaveProfile}
-            disabled={isSubmitting}
-          >
-            Save Changes
-          </button>
-        </section>
-
-        {/* Password Section */}
-        {!isGoogleUser() ? (
-          <section className="settings-section">
-            <h2><FaLock /> Change Password</h2>
-            <div className="form-group">
-              <label htmlFor="currentPassword">Current Password</label>
-              <div className="password-input-container">
-                <input
-                  id="currentPassword"
-                  type={showCurrentPassword ? "text" : "password"}
-                  value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData({
-                    ...passwordData,
-                    currentPassword: e.target.value
-                  })}
-                  className="settings-input"
-                  autoComplete="off"
-                  spellCheck={false}
-                  data-form-type="other"
-                />
-                <button
-                  type="button"
-                  className="toggle-password-btn"
-                  onClick={toggleCurrentPassword}
-                  aria-label={showCurrentPassword ? "Hide password" : "Show password"}
-                >
-                  {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="newPassword">New Password</label>
-              <div className="password-input-container">
-                <input
-                  id="newPassword"
-                  type={showNewPassword ? "text" : "password"}
-                  value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData({
-                    ...passwordData,
-                    newPassword: e.target.value
-                  })}
-                  className="settings-input"
-                  autoComplete="new-password"
-                  spellCheck={false}
-                  data-form-type="other"
-                />
-                <button
-                  type="button"
-                  className="toggle-password-btn"
-                  onClick={toggleNewPassword}
-                  aria-label={showNewPassword ? "Hide new password" : "Show new password"}
-                >
-                  {showNewPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm New Password</label>
-              <div className="password-input-container">
-                <input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData({
-                    ...passwordData,
-                    confirmPassword: e.target.value
-                  })}
-                  className="settings-input"
-                  autoComplete="new-password"
-                  spellCheck={false}
-                  data-form-type="other"
-                />
-                <button
-                  type="button"
-                  className="toggle-password-btn"
-                  onClick={toggleConfirmPassword}
-                  aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
-                >
-                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-            </div>
-            
-            <button 
-              className="save-button"
-              onClick={handlePasswordChange}
-              disabled={isSubmitting}
-            >
-              Update Password
-            </button>
-          </section>
-        ) : (
-          <section className="settings-section">
-            <h2><FaLock /> Password Management</h2>
-            <p className="info-message">
-              You signed in with Google. Your password is managed through your Google account.
-            </p>
-            <a 
-              href="https://myaccount.google.com/security" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="google-account-link"
-            >
-              Manage Google Account Settings
-            </a>
-          </section>
-        )}
-
-        {/* Danger Zone */}
-        <section className="settings-section danger-zone">
-          <h2><FaUserTimes /> Danger Zone</h2>
-          <div className="danger-zone-content">
-            <p className="warning-text">
-              Once you deactivate your account, all your data will be permanently deleted. 
-              This action cannot be undone.
-            </p>
-            <button 
-              className="deactivate-button"
-              onClick={() => setShowDeactivateDialog(true)}
-            >
-              Deactivate Account
-            </button>
-          </div>
-        </section>
-
-        {/* Deactivation Dialog */}
-        {showDeactivateDialog && (
-          <div className="dialog-overlay">
-            <div className="dialog-content" data-autocomplete="off">
-              <h3>Deactivate Account</h3>
-              <p>
-                Are you sure you want to deactivate your account? This will:
-                <ul>
-                  <li>Delete all your posts and comments</li>
-                  <li>Remove all your likes and interactions</li>
-                  <li>Permanently delete your account</li>
-                </ul>
-              </p>
-              
-              {!isGoogleUser() ? (
-                <div className="form-group">
-                  <label htmlFor="deactivatePassword">Enter your password to confirm:</label>
-                  <div className="password-input-container">
-                    <input
-                      id="deactivatePassword"
-                      type={showDeactivatePasswordVisibility ? "text" : "password"}
-                      value={deactivatePassword}
-                      onChange={(e) => setDeactivatePassword(e.target.value)}
-                      className="settings-input"
-                      autoComplete="new-password"
-                      spellCheck={false}
-                      data-form-type="other"
-                    />
-                    <button
-                      type="button"
-                      className="toggle-password-btn"
-                      onClick={toggleDeactivatePassword}
-                      aria-label={showDeactivatePasswordVisibility ? "Hide password" : "Show password"}
-                    >
-                      {showDeactivatePasswordVisibility ? <FaEyeSlash /> : <FaEye />}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <p className="info-message">
-                  You're signed in with Google. Deactivating your account will remove all your data from DevShare, but won't affect your Google account.
-                </p>
-              )}
-              
-              <div className="dialog-actions">
-                <button 
-                  className="cancel-button"
-                  onClick={() => {
-                    setShowDeactivateDialog(false);
-                    setDeactivatePassword('');
-                  }}
-                >
-                  Cancel
-                </button>
-                <button 
-                  className="deactivate-confirm-button"
-                  onClick={handleDeactivateAccount}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Deactivating...' : 'Deactivate Account'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 };

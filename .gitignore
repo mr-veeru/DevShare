@@ -49,4 +49,7 @@ firebase.json
 .vscode/
 *.swp
 *.swo
-.DS_Store 
+.DS_Store
+
+# Additional files
+serviceAccountKey.json 

@@ -2,93 +2,109 @@
  * Post Component Styles
  * 
  * CSS organization:
- * 1. Error Handling
+ * 1. Common Variables & Shared Styles
  * 2. Post Card Layout
  * 3. Post Header & User Info
  * 4. Post Content
- * 5. Action Buttons
- * 6. Share Options
- * 7. Animations
+ * 5. Action Buttons & Interactions
+ * 6. Skills & GitHub
+ * 7. Edit Form
  * 8. Responsive Design
- * 
- * Design system:
- * - Uses CSS variables for consistent theming
- * - Mobile-first responsive design
- * - Accessible focus states
- * - Smooth transitions and animations
  */
+
+/* Common interaction styles - can be reused across components */
+.btn-reset {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.interactive-item {
+  transition: all var(--transition-normal);
+}
+
+.interactive-item:hover {
+  transform: translateY(-2px);
+}
+
+.elevation-on-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.elevation-on-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
 
 /* Core Post Styles */
 .post-error-message {
   display: flex;
   align-items: center;
   gap: 12px;
-  background-color: var(--danger-50);
-  color: var(--danger);
+  background-color: var(--danger-50, #FEF2F2);
+  color: var(--danger, #DC2626);
   padding: 16px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 8px);
   margin-bottom: 20px;
+  border-left: 4px solid var(--danger, #DC2626);
 }
 
 .post-error-message button {
-  background: none;
-  border: none;
   color: var(--error-text-color, #d32f2f);
-  cursor: pointer;
   font-size: 1.1rem;
   padding: 0 5px;
 }
 
-.post-error-message button:hover {
-  opacity: 0.8;
-}
-
-/* Add a modern card design with better shadows and hover effects */
+/* Post card design - enhanced for better look */
 .post {
-  background-color: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: var(--space-6);
-  margin-bottom: var(--space-6);
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  background-color: var(--bg-primary, white);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: var(--space-6, 24px);
+  margin-bottom: var(--space-6, 24px);
+  transition: all 0.3s ease;
   overflow: hidden;
   position: relative;
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.05));
 }
 
 .post:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
-/* Improved header styling with better spacing */
+/* Header styling - improved alignment and spacing */
 .post-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-4);
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--border-light);
+  margin-bottom: var(--space-5, 20px);
+  padding-bottom: var(--space-4, 16px);
+  border-bottom: 1px solid var(--border-light, rgba(0, 0, 0, 0.05));
 }
 
 .post-info {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3, 12px);
 }
 
 .username-link {
   display: flex;
   align-items: center;
-  color: var(--text-primary);
+  color: var(--text-primary, #111827);
   text-decoration: none;
   font-size: 1rem;
-  gap: var(--space-2);
-  transition: color var(--transition-normal);
+  gap: var(--space-3, 12px);
+  transition: color 0.2s ease;
+  font-weight: 500;
 }
 
 .username-link:hover {
-  color: var(--primary);
+  color: var(--primary, #2563EB);
 }
 
 .username-link .user-details {
@@ -99,792 +115,709 @@
 .username-link .username {
   font-weight: 600;
   line-height: 1.2;
+  font-size: 1.05rem;
 }
 
 .post-date {
-  color: var(--text-tertiary);
+  color: var(--text-tertiary, #6B7280);
   font-size: 0.8rem;
   line-height: 1.2;
   margin-top: 2px;
 }
 
-/* Enhanced options menu styling */
+/* Options menu styling - enhanced for better UX */
 .post-options {
   position: relative;
 }
 
 .options-button {
-  background: none;
-  border: none;
-  color: var(--gray-500);
-  cursor: pointer;
-  padding: var(--space-2);
-  border-radius: var(--radius-full);
-  transition: all var(--transition-normal);
+  color: var(--gray-500, #6B7280);
+  padding: var(--space-2, 8px);
+  border-radius: var(--radius-full, 9999px);
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: transparent;
+  border: none;
 }
 
 .options-button:hover {
-  color: var(--text-primary);
-  background-color: var(--gray-100);
+  color: var(--text-primary, #111827);
+  background-color: transparent;
 }
 
+/* Dropdown menu - cleaner look */
+.dropdown-menu,
 .options-dropdown {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 5px);
   right: 0;
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 10;
   overflow: hidden;
-  min-width: 120px;
+  min-width: 150px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.2s ease;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-menu button,
 .options-dropdown button {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 12px;
   text-align: left;
   background: none;
   border: none;
   cursor: pointer;
   font-size: 14px;
-  color: var(--text-primary);
-  transition: background-color 0.2s;
+  color: var(--text-primary, #111827);
+  transition: all 0.15s ease;
+  font-weight: 500;
 }
 
+.dropdown-menu button:hover,
 .options-dropdown button:hover {
-  background-color: var(--bg-hover);
+  background-color: var(--bg-hover, #F9FAFB);
 }
 
-.options-dropdown button:first-child {
-  border-bottom: 1px solid var(--border-color);
+.danger-action {
+  color: var(--danger, #DC2626) !important;
 }
 
-.options-dropdown button:last-child {
-  color: var(--danger);
+.danger-action:hover {
+  background-color: var(--danger-light, #FEE2E2) !important;
 }
 
-.options-dropdown button:last-child:hover {
-  background-color: var(--danger-light, #FEE2E2);
-}
-
-/* Improved content styling */
+/* Post content styles - improved typography and spacing */
 .post-content {
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5, 20px);
+  position: relative;
 }
 
 .post-title {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: var(--space-3);
-  color: var(--text-primary);
+  margin-bottom: var(--space-3, 12px);
+  color: var(--text-primary, #111827);
   line-height: 1.3;
+  letter-spacing: -0.01em;
+  background: linear-gradient(to right, #1a202c, #4a5568);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  display: inline-block;
+}
+
+.post-title::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 3px;
+  bottom: -4px;
+  left: 0;
+  background: linear-gradient(to right, rgba(79, 70, 229, 0.7), rgba(79, 70, 229, 0.3));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  opacity: 0;
+}
+
+.post:hover .post-title::after {
+  width: 100%;
+  opacity: 1;
 }
 
 .post-description {
-  font-size: 1rem;
-  line-height: 1.5;
-  color: var(--text-secondary);
-  margin-bottom: var(--space-4);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-secondary, #4B5563);
+  margin-bottom: var(--space-4, 16px);
   white-space: pre-wrap;
   word-break: break-word;
+  position: relative;
+  text-rendering: optimizeLegibility;
 }
 
-/* Enhanced skills section */
+/* Enhanced skills section with modern styling */
 .skills-container {
-  margin-bottom: var(--space-4);
+  margin: var(--space-5, 20px) 0;
+}
+
+.skills-container h4 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--text-tertiary, #6B7280);
+  margin-bottom: var(--space-2, 8px);
+  letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 .skills-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--space-2, 8px);
+  margin-top: var(--space-2, 8px);
 }
 
 .skill-tag {
-  background-color: var(--primary-50);
-  color: var(--primary-700);
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-full);
+  background-color: var(--primary-50, #EFF6FF);
+  color: var(--primary-700, #1D4ED8);
+  padding: 6px 14px;
+  border-radius: var(--radius-full, 9999px);
   font-size: 0.85rem;
   font-weight: 500;
   display: inline-flex;
   align-items: center;
-  transition: all var(--transition-normal);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  cursor: default;
+  line-height: 1.5;
 }
 
 .skill-tag:hover {
-  background-color: var(--primary-200);
   transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* GitHub link container with proper spacing */
+/* Color variations based on first letter - enhanced palette */
+.skill-tag[data-first-letter="a"],
+.skill-tag[data-first-letter="b"],
+.skill-tag[data-first-letter="c"] {
+  background-color: #EFF6FF;
+  color: #1E40AF;
+}
+
+.skill-tag[data-first-letter="d"],
+.skill-tag[data-first-letter="e"],
+.skill-tag[data-first-letter="f"] {
+  background-color: #F0F9FF;
+  color: #0369A1;
+}
+
+.skill-tag[data-first-letter="g"],
+.skill-tag[data-first-letter="h"],
+.skill-tag[data-first-letter="i"] {
+  background-color: #ECFDF5;
+  color: #047857;
+}
+
+.skill-tag[data-first-letter="j"],
+.skill-tag[data-first-letter="k"],
+.skill-tag[data-first-letter="l"] {
+  background-color: #FFFBEB;
+  color: #B45309;
+}
+
+.skill-tag[data-first-letter="m"],
+.skill-tag[data-first-letter="n"],
+.skill-tag[data-first-letter="o"] {
+  background-color: #FDF2F8;
+  color: #BE185D;
+}
+
+.skill-tag[data-first-letter="p"],
+.skill-tag[data-first-letter="q"],
+.skill-tag[data-first-letter="r"] {
+  background-color: #F5F3FF;
+  color: #6D28D9;
+}
+
+.skill-tag[data-first-letter="s"],
+.skill-tag[data-first-letter="t"],
+.skill-tag[data-first-letter="u"] {
+  background-color: #F0FDFA;
+  color: #0F766E;
+}
+
+.skill-tag[data-first-letter="v"],
+.skill-tag[data-first-letter="w"],
+.skill-tag[data-first-letter="x"],
+.skill-tag[data-first-letter="y"],
+.skill-tag[data-first-letter="z"] {
+  background-color: #FEFCE8;
+  color: #65A30D;
+}
+
+/* Skill tags icons and customizations */
+.skill-tag[data-first-letter]::before {
+  content: "#";
+  margin-right: 4px;
+  opacity: 0.6;
+  font-weight: 700;
+  font-size: 0.9em;
+}
+
+/* Common programming languages and frameworks with custom icons */
+.skill-tag[data-skill="java"]::before {
+  content: "☕";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="python"]::before {
+  content: "🐍";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="javascript"]::before,
+.skill-tag[data-skill="js"]::before {
+  content: "JS";
+  opacity: 1;
+  font-size: 0.8em;
+  font-weight: 800;
+  margin-right: 5px;
+}
+
+.skill-tag[data-skill="typescript"]::before,
+.skill-tag[data-skill="ts"]::before {
+  content: "TS";
+  opacity: 1;
+  font-size: 0.8em;
+  font-weight: 800;
+  margin-right: 5px;
+}
+
+.skill-tag[data-skill="react"]::before {
+  content: "⚛️";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="angular"]::before {
+  content: "Ⓐ";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="vue"]::before {
+  content: "V";
+  font-weight: 800;
+  opacity: 1;
+}
+
+.skill-tag[data-skill="node"]::before {
+  content: "N";
+  font-weight: 800;
+  opacity: 1;
+}
+
+.skill-tag[data-skill="express"]::before {
+  content: "E";
+  font-weight: 800;
+  opacity: 1;
+}
+
+.skill-tag[data-skill="django"]::before {
+  content: "D";
+  font-weight: 800;
+  opacity: 1;
+}
+
+.skill-tag[data-skill="spring"]::before,
+.skill-tag[data-skill="springboot"]::before {
+  content: "🍃";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="database"]::before,
+.skill-tag[data-skill="db"]::before,
+.skill-tag[data-skill="sql"]::before {
+  content: "🗃️";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="aws"]::before {
+  content: "☁️";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="cloud"]::before {
+  content: "☁️";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="docker"]::before {
+  content: "🐳";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="kubernetes"]::before,
+.skill-tag[data-skill="k8s"]::before {
+  content: "🚢";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="ai"]::before,
+.skill-tag[data-skill="ml"]::before {
+  content: "🧠";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="mobile"]::before {
+  content: "📱";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="web"]::before {
+  content: "🌐";
+    opacity: 1;
+}
+
+.skill-tag[data-skill="security"]::before {
+  content: "🔒";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="ux"]::before,
+.skill-tag[data-skill="ui"]::before {
+  content: "🎨";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="testing"]::before,
+.skill-tag[data-skill="qa"]::before {
+  content: "🧪";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="devops"]::before {
+  content: "🔄";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="blockchain"]::before {
+  content: "⛓️";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="game"]::before {
+  content: "🎮";
+  opacity: 1;
+}
+
+.skill-tag[data-skill="analytics"]::before,
+.skill-tag[data-skill="data"]::before {
+  content: "��";
+  opacity: 1;
+}
+
+/* GitHub link styles - simple and clean */
 .github-link-container {
-  margin-top: var(--space-4);
-  margin-bottom: var(--space-4);
+  margin-top: var(--space-4, 16px);
+  margin-bottom: var(--space-4, 16px);
 }
 
-/* Improved GitHub link */
 .github-link {
   display: inline-flex;
   align-items: center;
-  padding: var(--space-2) var(--space-4);
-  background-color: #f6f8fa;
-  border: 1px solid #e1e4e8;
-  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  background-color: transparent;
+  border: none;
   color: #24292e;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   text-decoration: none;
-  gap: var(--space-2);
-  transition: all var(--transition-normal);
+  gap: var(--space-2, 8px);
+  transition: all 0.2s ease;
   width: fit-content;
+  font-weight: 500;
+}
+
+.github-link::before {
+  display: none;
+}
+
+.github-icon {
+  font-size: 1.2em;
+  color: #24292e;
+  transition: transform 0.3s ease;
+}
+
+.github-arrow {
+  margin-left: 4px;
+  transition: transform 0.3s ease;
+  opacity: 0.7;
 }
 
 .github-link:hover {
-  background-color: #ebedf0;
-  border-color: #dde1e5;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  background-color: transparent;
+  transform: none;
+  color: #0366d6;
 }
 
-/* Enhanced action buttons */
+.github-link:hover .github-icon {
+  transform: none;
+  color: #0366d6;
+}
+
+.github-link:hover .github-arrow {
+  transform: translateX(3px);
+  opacity: 1;
+  color: #0366d6;
+}
+
+/* Action buttons - clean style matching the image */
 .post-actions {
-  display: flex;
-  gap: var(--space-4);
-  padding-top: var(--space-4);
-  margin-top: var(--space-4);
-  border-top: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+  padding-top: var(--space-4, 16px);
+  border-top: 1px solid var(--border-light, rgba(0, 0, 0, 0.05));
+  margin-top: var(--space-4, 16px);
+  gap: 16px;
 }
 
 .action-button {
   display: flex;
   align-items: center;
-  background: none;
-  border: none;
-  padding: var(--space-2) var(--space-3);
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+  gap: 8px;
+  padding: 6px 12px;
+  color: var(--text-secondary, #4B5563);
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
   font-weight: 500;
-  border-radius: var(--radius-md);
-  transition: all var(--transition-normal);
-  gap: var(--space-2);
+  background-color: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
 }
 
 .action-button:hover {
-  background-color: var(--gray-100);
-  color: var(--text-primary);
+  background-color: rgba(0, 0, 0, 0.03);
+  color: var(--text-primary, #111827);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+.action-button svg {
+  transition: transform 0.2s ease;
+  font-size: 1.1rem;
+}
+
+.action-button:hover svg {
+  transform: scale(1.1);
+}
+
+/* Like button specific styling */
 .action-button.liked {
-  color: var(--danger);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.2);
 }
 
 .action-button.liked:hover {
-  background-color: var(--danger-light);
+  background-color: rgba(239, 68, 68, 0.05);
 }
 
-/* Improved edit form */
-.edit-form {
-  background-color: var(--bg-secondary, #f9fafb);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  margin-bottom: var(--space-4);
-  border: 1px solid var(--border-light);
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  15% { transform: scale(1.25); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+  60% { transform: scale(1); }
 }
 
-.edit-form .form-group {
-  margin-bottom: var(--space-4);
+.action-button.liked svg {
+  animation: heartBeat 0.8s ease-in-out;
 }
 
-.edit-form .form-group label {
-  display: block;
-  margin-bottom: var(--space-2);
-  font-weight: 500;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+/* Active state styling */
+.action-button:active {
+  transform: scale(0.98);
+  box-shadow: none;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-.edit-title, 
-.edit-description,
-.edit-skills {
-  font-size: 1rem;
-  padding: var(--space-3);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
-  width: 100%;
-  transition: all var(--transition-normal);
-  background-color: var(--bg-primary);
+.action-button.liked:active {
+  background-color: rgba(239, 68, 68, 0.1);
 }
 
-.edit-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.edit-description {
-  min-height: 120px;
-  resize: vertical;
-  line-height: 1.5;
-}
-
-.edit-skills {
-  font-size: 0.95rem;
-}
-
-.edit-title:focus,
-.edit-description:focus,
-.edit-skills:focus {
+/* Ensure consistent focus styling across browsers */
+.action-button:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-light);
 }
 
-.edit-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
+.action-button:focus-visible {
+  outline: 2px solid var(--primary, #2563EB);
+  outline-offset: 2px;
 }
 
-.edit-actions button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.save-button {
-  background-color: var(--primary);
-  color: white;
-  border: none;
-}
-
-.save-button:hover {
-  background-color: var(--primary-dark, #0056b3);
-}
-
-.cancel-button {
-  background-color: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-}
-
-.cancel-button:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
-/* Improved share options */
+/* Share container styling */
 .share-container {
   position: relative;
-  margin-left: auto;
 }
 
+/* Share options styling - cleaner dropdown */
 .share-options {
   position: absolute;
+  bottom: calc(100% + 10px);
   right: 0;
-  bottom: 40px;
-  background-color: var(--bg-primary);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
-  padding: var(--space-1);
-  z-index: var(--z-dropdown);
-  width: 200px;
-  border: 1px solid var(--border-light);
-  animation: fadeIn 0.2s ease-out;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 180px;
+  animation: fadeIn 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 4px;
 }
 
 .share-options button {
   display: flex;
   align-items: center;
+  gap: 10px;
   width: 100%;
-  padding: var(--space-3) var(--space-4);
+  padding: 8px 12px;
+  text-align: left;
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
-  gap: var(--space-3);
+  font-size: 14px;
+  color: var(--text-primary, #111827);
+  transition: all 0.15s ease;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 .share-options button:hover {
-  background-color: var(--gray-100);
+  background-color: var(--bg-hover, #F9FAFB);
+  transform: translateX(2px);
 }
 
 .share-options button svg {
-  color: var(--text-secondary);
-}
-
-/* Animation for fade-in elements */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
-  .post {
-    padding: var(--space-4);
-    margin-bottom: var(--space-4);
-  }
-  
-  .post-title {
-    font-size: 1.1rem;
-  }
-  
-  .action-button {
-    padding: var(--space-2);
-    font-size: 0.85rem;
-  }
-  
-  .share-options {
-    width: 180px;
-  }
-}
-
-/* Add styling for the highlighting of search results */
-mark {
-  background-color: rgba(79, 70, 229, 0.2);
-  padding: 0 2px;
-  border-radius: 2px;
-  color: var(--primary-dark);
-  font-weight: 500;
-}
-
-/* 8. Responsive Design */
-@media (max-width: 480px) {
-  .post-user-avatar {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .post-username {
-    font-size: 0.9rem;
-  }
-  
-  .post-content {
-    padding: 1rem;
-  }
-  
-  .post-title {
-    font-size: 1.1rem;
-  }
-
-  .post-actions {
-    padding: 8px;
-  }
-  
-  .post-actions-left {
-    gap: 8px;
-  }
-
-  .like-button, 
-  .comment-button, 
-  .share-button {
-    padding: 6px;
-  }
-
-  .heart-icon, 
-  .comment-icon, 
-  .share-icon {
-    font-size: 1.1rem;
-  }
-
-  .action-count {
-    font-size: 0.85rem;
-  }
-
-  .github-link {
-    padding: 0.35rem 0.7rem;
-    font-size: 0.8rem;
-  }
-
-  .post-description {
-    font-size: 0.9rem;
-    line-height: 1.5;
-    max-height: none !important;
-    overflow: visible;
-    white-space: normal !important;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
-}
-
-/* Improve touch targets on mobile */
-@media (hover: none) and (pointer: coarse) {
-  .like-button, 
-  .comment-button, 
-  .share-button {
-    min-height: 40px;
-    padding: 8px;
-  }
-
-  .github-link {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
-
-/* Share Options */
-.share-options {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 10px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  margin-top: 10px;
-  animation: fadeIn 0.3s ease;
-}
-
-.share-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: none;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  margin: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #495057;
-}
-
-.share-option:hover {
-  background-color: #e9ecef;
-  transform: translateY(-2px);
-}
-
-/* Date formatting */
-.post-date {
-  color: #6c757d;
-  font-size: 0.8rem;
-  margin-top: 2px;
-}
-
-.delete-post-button {
-  background: none;
-  border: none;
-  color: #dc3545;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  position: relative;
-  width: 32px;
-  height: 32px;
-}
-
-.delete-post-button:hover {
-  background-color: rgba(220, 53, 69, 0.1);
-  transform: scale(1.1);
-  box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
-}
-
-.delete-post-button:active {
-  transform: scale(0.95);
-}
-
-.delete-post-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
-}
-
-.delete-post-button svg {
-  width: 16px;
-  height: 16px;
+  font-size: 16px;
   transition: transform 0.2s ease;
 }
 
-.delete-post-button:hover svg {
+.share-options button:hover svg {
   transform: scale(1.1);
 }
 
-/* Post Actions Dropdown */
-.post-actions-dropdown {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 1000;
+/* Social media specific colors on hover */
+.share-options button:nth-child(1):hover svg {
+  color: #25D366; /* WhatsApp green */
 }
 
-.dropdown-toggle {
-  background: none;
-  border: none;
-  padding: 8px;
-  cursor: pointer;
-  color: #666;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.share-options button:nth-child(2):hover svg {
+  color: #000000; /* X black */
 }
 
-.dropdown-toggle:hover {
-  color: #333;
+.share-options button:nth-child(3):hover svg {
+  color: #4267B2; /* Facebook blue */
 }
 
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  min-width: 120px;
-  z-index: 1001;
+.share-options button:nth-child(4):hover svg {
+  color: #0077B5; /* LinkedIn blue */
 }
 
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  width: 100%;
-  border: none;
-  background: none;
-  cursor: pointer;
-  text-align: left;
+.share-options button:nth-child(5):hover svg {
+  color: var(--primary, #2563EB);
 }
 
-.dropdown-item:hover {
-  background-color: #f5f5f5;
-}
-
-/* Edit Form */
-.edit-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  margin-bottom: 16px;
-}
-
-.edit-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-}
-
-.edit-input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-}
-
-textarea.edit-input {
-  min-height: 100px;
-  resize: vertical;
-}
-
-.edit-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 8px;
-}
-
-.edit-actions button {
-  padding: 8px 16px;
-  border-radius: 6px;
+/* Read more/less button - enhanced style */
+.read-more-btn {
+  color: var(--primary, #2563EB);
   font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  margin-top: 2px;
+  margin-bottom: var(--space-3, 12px);
+  transition: all 0.2s ease;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  width: fit-content;
+  background-color: rgba(239, 246, 255, 0.6);
+  border: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+.read-more-btn:hover {
+  color: var(--primary-dark, #1E40AF);
+  background-color: var(--primary-50, #EFF6FF);
+  transform: translateY(-1px);
+  border-color: rgba(37, 99, 235, 0.2);
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .dropdown-menu {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 300px;
+  .post {
+    padding: var(--space-4, 16px);
+    margin-bottom: var(--space-4, 16px);
+    border-radius: 10px;
   }
-
-  .edit-form {
-    padding: 12px;
+  
+  .post-title {
+    font-size: 1.2rem;
   }
-
-  .edit-actions {
-    flex-direction: column;
+  
+  .post-description {
+    font-size: 0.95rem;
   }
-
-  .edit-actions button {
-    width: 100%;
+  
+  .post-actions {
+    gap: 8px;
+  }
+  
+  .action-button {
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    gap: 4px;
+  }
+  
+  .action-button svg {
+    font-size: 1rem;
+  }
+  
+  .action-button span {
+    font-size: 0.85rem;
+  }
+  
+  .github-link {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .skills-tags {
+    gap: 6px;
+  }
+  
+  .skill-tag {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+  }
+  
+  .share-options {
+    min-width: 160px;
+  }
+  
+  .share-options button {
+    padding: 8px 10px;
+    font-size: 0.85rem;
   }
 }
 
-/* Add mobile-specific adjustments */
-@media screen and (max-width: 768px) {
-  .post-actions-dropdown {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1000;
-  }
-
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    width: auto;
-    min-width: 150px;
-  }
-
-  .dropdown-item {
-    padding: 12px 16px;
-  }
-}
-
-/* Improved dropdown menu styles */
-.comment-menu {
-  position: relative;
-}
-
-.menu-button {
-  background: none;
-  border: none;
-  color: #6c757d;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
-
-.menu-button:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.menu-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 10;
-  background-color: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  min-width: 120px;
-  overflow: hidden;
-}
-
-.menu-dropdown button {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  text-align: left;
-  padding: 10px 15px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.menu-dropdown button svg {
-  margin-right: 8px;
-}
-
-.menu-dropdown button:hover {
-  background-color: #f8f9fa;
-}
-
-/* Add highlighting styles for search results */
-.highlighted-text {
-  background-color: rgba(255, 255, 0, 0.4);
-  padding: 0 2px;
-  border-radius: 2px;
-  font-weight: 600;
-}
-
-/* Highlight search matches */
-mark {
-  background-color: #fff3cd;
-  padding: 2px 0;
-  border-radius: 2px;
-}
-
-/* Read more button */
-.read-more-btn {
-  background: none;
-  border: none;
-  color: var(--primary);
-  font-size: 0.9rem;
-  font-weight: 500;
-  padding: var(--space-1) var(--space-2);
-  margin-top: var(--space-1);
-  margin-bottom: var(--space-3);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  transition: all var(--transition-normal);
-}
-
-.read-more-btn:hover {
-  background-color: var(--primary-100);
-  color: var(--primary-dark);
-  transform: translateY(-1px);
-}
-
-.read-more-btn svg {
-  font-size: 0.8rem;
-}
-
-.post-description {
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: var(--space-2);
-  font-size: 1rem;
-  white-space: pre-line;
-  word-break: break-word;
-}
-
-/* Highlight for search terms */
+/* Search highlight style - enhanced */
 .search-highlight {
-  background-color: rgba(255, 217, 102, 0.6);
-  color: #000;
-  font-weight: 500;
+  background-color: rgba(255, 213, 86, 0.4);
   padding: 0 2px;
-  border-radius: 3px;
-  box-shadow: 0 0 0 1px rgba(255, 217, 102, 0.3);
-  animation: highlightPulse 2s ease-in-out 1;
+  border-radius: 2px;
+  animation: highlightFade 2s ease-in-out;
 }
 
-@keyframes highlightPulse {
-  0% { background-color: rgba(255, 217, 102, 0.9); }
-  50% { background-color: rgba(255, 217, 102, 0.6); }
+@keyframes highlightFade {
+  0% { background-color: rgba(255, 213, 86, 0.8); }
   100% { background-color: rgba(255, 217, 102, 0.6); }
+}
+
+.action-button,
+.options-button,
+.github-link {
+  box-shadow: none;
+  border: none;
+  outline: none;
 } 

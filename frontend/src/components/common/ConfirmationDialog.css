@@ -48,31 +48,52 @@
   gap: 10px;
 }
 
-/* Cancel button */
-.confirmation-dialog .cancel-button {
+.confirmation-dialog-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.confirmation-dialog-buttons button:focus {
+  outline: 2px solid var(--primary, #0088cc);
+  outline-offset: 2px;
+}
+
+.confirmation-dialog-buttons button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.cancel-button {
   background-color: #f1f1f1;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  color: #333;
 }
 
-.confirmation-dialog .cancel-button:hover {
-  background-color: #e1e1e1;
+.cancel-button:hover {
+  background-color: #e2e2e2;
 }
 
-/* Confirm button */
-.confirmation-dialog .confirm-button {
-  background-color: #dc3545;
+.cancel-button:focus-visible {
+  background-color: #e2e2e2;
+}
+
+.confirm-button {
+  background-color: #e74c3c;
   color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  margin-left: 10px;
 }
 
-.confirmation-dialog .confirm-button:hover {
-  background-color: #c82333;
+.confirm-button:hover {
+  background-color: #c0392b;
+}
+
+.confirm-button:focus-visible {
+  background-color: #c0392b;
+}
+
+/* Keyboard navigation indicator */
+.confirmation-dialog:focus-within {
+  box-shadow: 0 0 0 2px var(--primary, #0088cc), 0 5px 15px rgba(0, 0, 0, 0.3);
 } 

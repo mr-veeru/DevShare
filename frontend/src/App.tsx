@@ -21,6 +21,7 @@ import { LoadingSpinner, ErrorBoundary } from './components/common';
 import ProfileSettings from './pages/settings/ProfileSettings';
 import NotificationsPage from './pages/notifications/NotificationsPage';
 import SinglePost from './pages/notifications/SinglePost';
+import KeyboardShortcutsGuide from './pages/settings/KeyboardShortcutsGuide';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -112,6 +113,11 @@ function AppContent() {
           <Route path="/settings/profile" element={
             <ProtectedRoute>
               <ProfileSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings/keyboard-shortcuts" element={
+            <ProtectedRoute>
+              <KeyboardShortcutsGuide />
             </ProtectedRoute>
           } />
           <Route path="/notifications" element={

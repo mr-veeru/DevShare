@@ -9,7 +9,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../config/firebase';
 import { signOut } from 'firebase/auth';
 import { useState, useRef, useEffect } from 'react';
-import { FaHome, FaPlus, FaUser, FaSignOutAlt, FaBars, FaBell, FaCode } from 'react-icons/fa';
+import { FaHome, FaPlus, FaUser, FaSignOutAlt, FaBars, FaBell, FaCode, FaKeyboard } from 'react-icons/fa';
 import { LetterAvatar } from '../../components/common';
 import { useNotifications } from '../../pages/notifications/NotificationsPage';
 import './Navbar.css';
@@ -40,6 +40,9 @@ const Navbar = () => {
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const mobileProfileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const profileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const firstMenuItemRef = useRef<HTMLButtonElement>(null);
 
   // Define navigation items in a single place
   const navItems: NavItem[] = [
@@ -95,6 +98,40 @@ const Navbar = () => {
   }, []);
 
   /**
+   * Handle keyboard accessibility for dropdown menus
+   */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Close menus on Escape
+      if (e.key === 'Escape') {
+        if (showProfileMenu) {
+          setShowProfileMenu(false);
+          profileMenuButtonRef.current?.focus();
+        }
+        if (showMobileProfileMenu) {
+          setShowMobileProfileMenu(false);
+        }
+        if (isOpen) {
+          setIsOpen(false);
+          mobileMenuButtonRef.current?.focus();
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showProfileMenu, showMobileProfileMenu, isOpen]);
+
+  /**
+   * Set focus on first menu item when menus open
+   */
+  useEffect(() => {
+    if (showProfileMenu && firstMenuItemRef.current) {
+      firstMenuItemRef.current.focus();
+    }
+  }, [showProfileMenu]);
+
+  /**
    * Handle navigation and menu state
    * @param {string} path - Route path to navigate to
    */
@@ -141,8 +178,24 @@ const Navbar = () => {
     return null;
   }
 
+  /**
+   * Toggle profile menu with keyboard support
+   */
+  const toggleProfileMenu = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setShowProfileMenu(prev => !prev);
+  };
+
+  /**
+   * Toggle mobile menu with keyboard support
+   */
+  const toggleMobileMenu = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setIsOpen(prev => !prev);
+  };
+
   // Render a navigation item
-  const renderNavItem = (item: NavItem, isMobile = false) => {
+  const renderNavItem = (item: NavItem, isMobile = false, itemIndex: number = 0) => {
     if (item.showWhen === 'authenticated' && !user) return null;
     
     const className = isMobile ? 
@@ -155,6 +208,14 @@ const Navbar = () => {
         className={className}
         onClick={() => handleNavigation(item.path)}
         aria-label={item.label}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleNavigation(item.path);
+          }
+        }}
+        ref={itemIndex === 0 ? firstMenuItemRef : undefined}
       >
         {item.icon}
         <span>{item.label}</span>
@@ -167,11 +228,17 @@ const Navbar = () => {
    */
   const renderProfileDropdown = (isMobile = false) => {
     const containerClass = isMobile ? "mobile-profile-dropdown" : "profile-dropdown";
+    const containerRef = isMobile ? mobileProfileMenuRef : profileMenuRef;
     
     return (
       <>
         {isMobile && <div className="mobile-overlay" onClick={() => setShowMobileProfileMenu(false)} />}
-        <div className={containerClass}>
+        <div 
+          className={containerClass} 
+          ref={containerRef}
+          role="menu"
+          aria-label="User menu"
+        >
           <div className="dropdown-header">
             <span>{user?.displayName}</span>
             <small>{user?.email}</small>
@@ -182,6 +249,14 @@ const Navbar = () => {
               e.stopPropagation(); // Stop event propagation
               handleNavigation('/profile');
             }}
+            role="menuitem"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleNavigation('/profile');
+              }
+            }}
           >
             <FaUser /> Profile
           </button>
@@ -189,7 +264,32 @@ const Navbar = () => {
             className="dropdown-item"
             onClick={(e) => {
               e.stopPropagation(); // Stop event propagation
+              handleNavigation('/settings/keyboard-shortcuts');
+            }}
+            role="menuitem"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleNavigation('/settings/keyboard-shortcuts');
+              }
+            }}
+          >
+            <FaKeyboard /> Keyboard Shortcuts
+          </button>
+          <button 
+            className="dropdown-item"
+            onClick={(e) => {
+              e.stopPropagation(); // Stop event propagation
               handleLogout();
+            }}
+            role="menuitem"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleLogout();
+              }
             }}
           >
             <FaSignOutAlt /> Logout
@@ -219,7 +319,7 @@ const Navbar = () => {
         >
           <div className="nav-links">
             {/* Navigation Links */}
-            {navItems.filter(item => item.label !== 'Profile').map(item => renderNavItem(item))}
+            {navItems.filter(item => item.label !== 'Profile').map((item, index) => renderNavItem(item, false, index))}
           </div>
             
           {/* Profile Menu - Desktop only */}
@@ -227,15 +327,13 @@ const Navbar = () => {
             <div className="profile-menu-container" ref={profileMenuRef}>
               <button 
                 className="avatar-button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowProfileMenu(!showProfileMenu);
-                }}
+                onClick={toggleProfileMenu}
                 aria-label="User menu"
+                ref={profileMenuButtonRef}
               >
                 <LetterAvatar 
-                  name={user.displayName || 'User'} 
-                  size="small"
+                  name={user?.displayName || "User"} 
+                  size="small" 
                 />
               </button>
 
@@ -247,8 +345,9 @@ const Navbar = () => {
         {/* Mobile Bottom Navbar Toggle Button - Only visible on mobile */}
         <button 
           className="mobile-toggle"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={toggleMobileMenu}
           aria-label="Toggle navigation"
+          ref={mobileMenuButtonRef}
         >
           <FaBars />
         </button>
@@ -256,7 +355,7 @@ const Navbar = () => {
       
       {/* Mobile Bottom Navigation Bar */}
       <div className="mobile-bottom-navbar">
-        {navItems.filter(item => item.label !== 'Profile').map(item => renderNavItem(item, true))}
+        {navItems.filter(item => item.label !== 'Profile').map((item, index) => renderNavItem(item, true, index))}
         
         {/* Add Profile Avatar with Dropdown for Mobile */}
         {user && (
@@ -268,6 +367,7 @@ const Navbar = () => {
                 setShowMobileProfileMenu(!showMobileProfileMenu);
               }}
               aria-label="User menu"
+              ref={mobileMenuButtonRef}
             >
               <LetterAvatar 
                 name={user.displayName || 'User'} 

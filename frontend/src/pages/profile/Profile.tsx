@@ -17,6 +17,7 @@ import './Profile.css';
 import { LoadingSpinner, Message, useAutoMessage, LetterAvatar } from '../../components/common';
 import Post from '../feed/Post';
 import { getPosts, getLikes } from '../../services/api';
+import '../feed/Post.css';
 
 /**
  * Interface for user statistics
@@ -69,17 +70,19 @@ const Profile = () => {
 
   // Move fetchUserPosts before the useEffect that uses it
   const fetchUserPosts = useCallback(async () => {
-    if (!user) return;
-    
     try {
       setLoading(true);
+      console.log("Fetching posts for profile:", { username, currentUser: user?.displayName });
       const allPosts = await getPosts();
+      console.log("Total posts fetched:", allPosts.length);
       
-      // If viewing your own profile, filter by userId instead of username
-      // This ensures all posts show up even if username changed
-      const userPosts = isOwnProfile 
-        ? allPosts.filter((post: UserPost) => post.userId === user.uid)
-        : allPosts.filter((post: UserPost) => post.username === username);
+      // Filter posts based on the username in the URL parameter
+      // If username is provided, show that user's posts, otherwise show current user's posts
+      const userPosts = username
+        ? allPosts.filter((post: UserPost) => post.username.toLowerCase() === username.toLowerCase())
+        : allPosts.filter((post: UserPost) => post.userId === user?.uid);
+      
+      console.log("Filtered posts:", userPosts.length);
       
       // Get likes for each post
       const postsWithLikes = await Promise.all(userPosts.map(async (post: UserPost) => {
@@ -100,19 +103,20 @@ const Profile = () => {
     } catch (error) {
       console.error("Error fetching posts:", error);
       setError("Failed to load posts");
+      // Even if posts fail to load, we should still show the profile
+      setPosts([]);
     } finally {
       setLoading(false);
     }
-  }, [user, username, isOwnProfile]);
+  }, [user, username]);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/');
-      return;
-    }
-
     // Set isOwnProfile based on username
-    setIsOwnProfile(!username || username === user.displayName);
+    // Only consider it the user's own profile if the username matches exactly
+    setIsOwnProfile(username === user?.displayName);
+    
+    // Continue with fetching posts even if the user is not logged in
+    // This allows viewing profiles when not logged in
     fetchUserPosts();
   }, [user, navigate, fetchUserPosts, username]);
 
@@ -309,13 +313,19 @@ const Profile = () => {
             </div>
           ) : (
             <div className="no-posts">
-              <p>You haven't created any projects yet.</p>
-              <button 
-                className="btn btn-primary"
-                onClick={() => navigate('/createPost')}
-              >
-                <FaPlus /> Create Your First Project
-              </button>
+              {isOwnProfile ? (
+                <>
+                  <p>You haven't created any projects yet.</p>
+                  <button 
+                    className="btn btn-primary"
+                    onClick={() => navigate('/createPost')}
+                  >
+                    <FaPlus /> Create Your First Project
+                  </button>
+                </>
+              ) : (
+                <p>{username} hasn't created any projects yet.</p>
+              )}
             </div>
           )}
         </section>
@@ -327,9 +337,22 @@ const Profile = () => {
               Skills & Technologies
             </h2>
             <div className="skills-cloud">
-              {Array.from(userStats.skillsUsed).map((skill) => (
-                <span key={skill} className="skill-badge">{skill}</span>
-              ))}
+              {Array.from(userStats.skillsUsed).map((skill) => {
+                const trimmedSkill = skill.trim();
+                const firstLetter = trimmedSkill.charAt(0).toLowerCase();
+                const skillLower = trimmedSkill.toLowerCase();
+                
+                return (
+                  <span 
+                    key={skill} 
+                    className="skill-tag"
+                    data-first-letter={firstLetter}
+                    data-skill={skillLower}
+                  >
+                    {skill}
+                  </span>
+                );
+              })}
             </div>
           </section>
         )}

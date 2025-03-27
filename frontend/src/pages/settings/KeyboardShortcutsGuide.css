@@ -1,0 +1,125 @@
+.keyboard-shortcuts-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: var(--text-primary);
+}
+
+.keyboard-shortcuts-container h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary);
+  border-bottom: 2px solid var(--border-light);
+  padding-bottom: 1rem;
+}
+
+.intro-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  color: var(--text-secondary);
+}
+
+.shortcut-category {
+  margin-bottom: 2.5rem;
+}
+
+.shortcut-category h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  position: relative;
+  padding-left: 1rem;
+}
+
+.shortcut-category h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 4px;
+  background-color: var(--primary);
+  border-radius: 2px;
+}
+
+.shortcuts-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.shortcuts-table th {
+  background-color: var(--primary-light);
+  color: var(--text-primary);
+  text-align: left;
+  padding: 1rem;
+  font-weight: 600;
+}
+
+.shortcuts-table tr:nth-child(even) {
+  background-color: var(--bg-secondary);
+}
+
+.shortcuts-table td {
+  padding: 0.8rem 1rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.key-column {
+  width: 30%;
+  white-space: nowrap;
+}
+
+kbd {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--primary-dark);
+  background-color: var(--bg-light);
+  border: 1px solid var(--border-medium);
+  border-radius: 3px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  margin: 0 0.2rem;
+  font-family: monospace;
+}
+
+.aria-info {
+  background-color: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+  border-left: 4px solid var(--primary);
+}
+
+.aria-info h2 {
+  color: var(--primary);
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.aria-info p {
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .keyboard-shortcuts-container {
+    padding: 1rem;
+  }
+  
+  .shortcuts-table th,
+  .shortcuts-table td {
+    padding: 0.6rem;
+  }
+  
+  kbd {
+    padding: 0.1rem 0.3rem;
+    font-size: 0.8rem;
+  }
+} 

@@ -27,7 +27,7 @@
  * @param {function} [props.onCommentChanged] - Optional callback for comment count updates
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../../config/firebase';
 import './CommentSection.css';
@@ -49,6 +49,7 @@ interface Comment {
   username: string;
   postId: string;
   createdAt: string;
+  editedAt?: string;
   parentId?: string;
   replies?: Comment[];
   likes?: number;
@@ -63,6 +64,37 @@ interface CommentSectionProps {
   postId: string;
   onCommentChanged?: () => Promise<void>;
 }
+
+/**
+ * A custom hook for managing keyboard shortcuts
+ */
+const useKeyboardShortcuts = (
+  shortcuts: { [key: string]: (e: KeyboardEvent) => void },
+  deps: any[] = []
+) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in form elements
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      // Execute the corresponding shortcut handler
+      if (shortcuts[e.key]) {
+        shortcuts[e.key](e);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shortcuts, ...deps]);
+};
 
 const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChanged }) => {
   const [user] = useAuthState(auth);
@@ -79,6 +111,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
   const [showReplies, setShowReplies] = useState<{ [key: string]: boolean }>({});
   const [likedComments, setLikedComments] = useState<{ [key: string]: boolean }>({});
   const [commentLikes, setCommentLikes] = useState<{ [key: string]: number }>({});
+  const [visibleCommentCount, setVisibleCommentCount] = useState(2); // Initially show 2 comments
+  const [showAllComments, setShowAllComments] = useState(false);
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
+  const editInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const replyInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const fetchComments = useCallback(async () => {
     try {
@@ -195,12 +232,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
   const handleEdit = async (comment: Comment) => {
     if (editingCommentId === comment.id) {
       try {
+        const editData = {
+          text: editedText,
+          editedAt: new Date().toISOString()
+        };
+
         if (comment.parentId) {
           // Update reply
-          await updateReply(comment.id, { text: editedText });
+          await updateReply(comment.id, editData);
         } else {
           // Update comment
-          await updateComment(comment.id, { text: editedText });
+          await updateComment(comment.id, editData);
         }
 
         setComments(prevComments => {
@@ -209,13 +251,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
             return prevComments.map(c => ({
               ...c,
               replies: c.replies?.map(r =>
-                r.id === comment.id ? { ...r, text: editedText } : r
+                r.id === comment.id ? { ...r, text: editedText, editedAt: editData.editedAt } : r
               )
             }));
           } else {
             // Update comment
             return prevComments.map(c =>
-              c.id === comment.id ? { ...c, text: editedText } : c
+              c.id === comment.id ? { ...c, text: editedText, editedAt: editData.editedAt } : c
             );
           }
         });
@@ -331,7 +373,16 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
     }
   };
 
-  const handleLikeComment = async (commentId: string) => {
+  const handleLikeComment = async (commentId: string, e?: React.KeyboardEvent) => {
+    // Allow keyboard activation with space or enter
+    if (e && e.key !== 'Enter' && e.key !== ' ') {
+      return;
+    }
+    
+    if (e && e.key === ' ') {
+      e.preventDefault(); // Prevent page scroll on space
+    }
+    
     if (!user) {
       toast.error("You must be logged in to like comments");
       return;
@@ -359,26 +410,103 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
     }
   };
 
+  const handleShowMoreComments = () => {
+    if (showAllComments) {
+      return;
+    }
+    
+    if (visibleCommentCount + 5 >= comments.length) {
+      setShowAllComments(true);
+      setVisibleCommentCount(comments.length);
+    } else {
+      setVisibleCommentCount(prevCount => prevCount + 5);
+    }
+  };
+  
+  const handleShowLessComments = () => {
+    setShowAllComments(false);
+    setVisibleCommentCount(2); // Reset to initial count
+  };
+
+  // Focus management for comment editing
+  useEffect(() => {
+    if (editingCommentId && editInputRef.current) {
+      editInputRef.current.focus();
+    }
+  }, [editingCommentId]);
+
+  // Focus management for replies
+  useEffect(() => {
+    if (replyingTo && replyInputRef.current) {
+      replyInputRef.current.focus();
+    }
+  }, [replyingTo]);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    c: () => {
+      if (commentInputRef.current) {
+        commentInputRef.current.focus();
+      }
+    },
+    Escape: () => {
+      // Cancel editing or replying if active
+      if (editingCommentId) {
+        setEditingCommentId(null);
+        setEditedText("");
+      } else if (replyingTo) {
+        setReplyingTo(null);
+        setReplyText("");
+      }
+    }
+  }, [editingCommentId, replyingTo]);
+
   const renderComment = (comment: Comment, isReply = false) => {
     // Don't render deleted comments
     if (comment.deleted) {
       return null;
     }
 
+    const commentId = `comment-${comment.id}`;
+
     return (
-      <div key={comment.id} className={`comment ${isReply ? 'reply' : ''}`}>
+      <div key={comment.id} 
+        className={`comment ${isReply ? 'reply' : ''}`} 
+        id={commentId}
+        tabIndex={0}
+        aria-labelledby={`${commentId}-username`}
+        aria-describedby={`${commentId}-text`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+          }
+        }}
+      >
         <div className="comment-header">
           <div className="comment-user">
-            <Link to={`/profile/${comment.userId}`}>
+            <Link to={`/user/${comment.username}`}
+              aria-label={`${comment.username}'s profile`}
+              tabIndex={0}
+            >
               <LetterAvatar name={comment.username} size="small" />
             </Link>
             <div className="comment-info">
-              <Link to={`/profile/${comment.userId}`} className="comment-username">
+              <Link to={`/user/${comment.username}`} 
+                className="comment-username"
+                id={`${commentId}-username`}
+                tabIndex={0}
+              >
                 {comment.username}
               </Link>
-              <span className="comment-time">
-                {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
-              </span>
+              <div className="comment-metadata">
+                <span className="comment-time">
+                  {comment.editedAt ? (
+                    <>edited {formatDistanceToNow(new Date(comment.editedAt), { addSuffix: true })}</>
+                  ) : (
+                    formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
+                  )}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -386,31 +514,60 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
         {editingCommentId === comment.id ? (
           <div className="edit-comment">
             <textarea
+              ref={(el) => editInputRef.current = el}
               value={editedText}
               onChange={(e) => setEditedText(e.target.value)}
               className="edit-input"
+              aria-label="Edit comment"
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setEditingCommentId(null);
+                  setEditedText("");
+                } else if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleEdit(comment);
+                }
+              }}
             />
             <div className="edit-actions">
-              <button onClick={() => handleEdit(comment)} className="save-button">
+              <button 
+                onClick={() => handleEdit(comment)} 
+                className="save-button"
+                aria-label="Save edited comment"
+                tabIndex={0}
+              >
                 Save
               </button>
-              <button onClick={() => {
-                setEditingCommentId(null);
-                setEditedText("");
-              }} className="cancel-button">
+              <button 
+                onClick={() => {
+                  setEditingCommentId(null);
+                  setEditedText("");
+                }} 
+                className="cancel-button"
+                aria-label="Cancel edit"
+                tabIndex={0}
+              >
                 Cancel
               </button>
             </div>
           </div>
         ) : (
           <>
-            <p className="comment-text">{comment.text}</p>
+            <p className="comment-text" id={`${commentId}-text`}>{comment.text}</p>
             <div className="comment-actions">
               {/* Only show Reply button for comments (not replies) and when user is logged in */}
               {user && !isReply && (
                 <button 
                   onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
                   className="reply-button"
+                  aria-label={`Reply to ${comment.username}'s comment`}
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setReplyingTo(replyingTo === comment.id ? null : comment.id);
+                    }
+                  }}
                 >
                   Reply
                 </button>
@@ -419,7 +576,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
               {/* Like button for both comments and replies */}
               <button
                 onClick={() => handleLikeComment(comment.id)}
+                onKeyDown={(e) => handleLikeComment(comment.id, e)}
                 className={`like-button ${likedComments[comment.id] ? 'liked' : ''}`}
+                aria-label={likedComments[comment.id] ? `Unlike comment (${commentLikes[comment.id] || 0} likes)` : `Like comment (${commentLikes[comment.id] || 0} likes)`}
+                aria-pressed={likedComments[comment.id] || false}
+                tabIndex={0}
               >
                 {likedComments[comment.id] ? <FaHeart /> : <FaRegHeart />} {commentLikes[comment.id] || 0}
               </button>
@@ -431,6 +592,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
                     onClick={() => handleEdit(comment)} 
                     className="action-button"
                     title={isReply ? "Edit" : "Edit"}
+                    aria-label={`Edit ${isReply ? 'reply' : 'comment'}`}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleEdit(comment);
+                      }
+                    }}
                   >
                     <FaEdit /> {isReply ? "Edit" : "Edit"}
                   </button>
@@ -441,6 +610,15 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
                     }}
                     className="action-button"
                     title={isReply ? "Delete" : "Delete"}
+                    aria-label={`Delete ${isReply ? 'reply' : 'comment'}`}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setCommentToDelete(comment.id);
+                        setShowDeleteDialog(true);
+                      }
+                    }}
                   >
                     <FaTrash /> {isReply ? "Delete" : "Delete"}
                   </button>
@@ -453,15 +631,28 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
         {replyingTo === comment.id && (
           <div className="reply-form">
             <textarea
+              ref={(el) => replyInputRef.current = el}
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Write a reply..."
               className="reply-input"
+              aria-label={`Reply to ${comment.username}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setReplyingTo(null);
+                  setReplyText("");
+                } else if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleReply(comment.id);
+                }
+              }}
             />
             <div className="reply-actions">
               <button 
                 onClick={() => handleReply(comment.id)}
                 className="submit-reply"
+                aria-label="Submit reply"
+                tabIndex={0}
               >
                 Reply
               </button>
@@ -471,6 +662,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
                   setReplyText("");
                 }}
                 className="cancel-reply"
+                aria-label="Cancel reply"
+                tabIndex={0}
               >
                 Cancel
               </button>
@@ -486,12 +679,24 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
                 [comment.id]: !prev[comment.id]
               }))}
               className="toggle-replies"
+              aria-expanded={showReplies[comment.id] || false}
+              aria-controls={`replies-${comment.id}`}
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setShowReplies(prev => ({
+                    ...prev,
+                    [comment.id]: !prev[comment.id]
+                  }));
+                }
+              }}
             >
               {showReplies[comment.id] ? 'Hide' : 'Show'} {comment.replies.length} {comment.replies.length === 1 ? 'reply' : 'replies'}
             </button>
             
             {showReplies[comment.id] && (
-              <div className="replies-list">
+              <div className="replies-list" id={`replies-${comment.id}`}>
                 {comment.replies.map((reply: Comment) => renderComment(reply, true))}
               </div>
             )}
@@ -504,27 +709,82 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentChange
   if (loading) return <LoadingSpinner />;
   if (error) return <div className="error-message">{error}</div>;
 
+  // Get the visible comments based on our current state
+  const visibleComments = comments.slice(0, visibleCommentCount);
+
   return (
-    <div className="comments-section">
+    <div className="comments-section" role="region" aria-label="Comments">
       <form onSubmit={handleSubmit} className="comment-form">
         <textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           placeholder="Write a comment..."
           className="comment-input"
+          aria-label="Write a comment"
+          rows={3}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit(e);
+            }
+          }}
         />
-        <button type="submit" className="submit-button">
+        <button 
+          type="submit" 
+          className="submit-button"
+          aria-label="Submit comment"
+          tabIndex={0}
+        >
           Comment
         </button>
       </form>
 
-      <div className="comments-list">
+      <div className="comments-list" role="feed" aria-label="Comments list">
         {comments.length === 0 ? (
           <div className="no-comments">
             No comments yet. Be the first to comment!
           </div>
         ) : (
-          comments.map(comment => renderComment(comment))
+          <>
+            {visibleComments.map(comment => renderComment(comment))}
+            
+            {/* Show more/less buttons */}
+            <div className="comments-pagination">
+              {!showAllComments && visibleCommentCount < comments.length && (
+                <button 
+                  onClick={handleShowMoreComments}
+                  className="show-more-comments"
+                  aria-label={`Show more comments (${comments.length - visibleCommentCount} remaining)`}
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleShowMoreComments();
+                    }
+                  }}
+                >
+                  Show more comments ({comments.length - visibleCommentCount} remaining)
+                </button>
+              )}
+              
+              {(showAllComments || visibleCommentCount > 2) && (
+                <button 
+                  onClick={handleShowLessComments}
+                  className="show-less-comments"
+                  aria-label="Show less comments"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleShowLessComments();
+                    }
+                  }}
+                >
+                  Show less comments
+                </button>
+              )}
+            </div>
+          </>
         )}
       </div>
 

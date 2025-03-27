@@ -303,29 +303,21 @@
   gap: var(--space-2);
 }
 
-/* Skills Section */
+/* Skills Section - using skill-tag styles from Post.css */
 .skills-cloud {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
+  gap: 8px;
+  padding: 0.75rem 0;
 }
 
-.skill-badge {
-  background-color: var(--primary-100);
-  color: var(--primary-700);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all var(--transition-normal);
-}
-
-.skill-badge:hover {
-  background-color: var(--primary);
-  color: white;
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: var(--shadow-sm);
+/* Second instance of skills cloud around line 740 */
+/* Skills cloud now uses styles from Post.css */
+.skills-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0.75rem 0;
 }
 
 /* Activity Section */
@@ -736,28 +728,6 @@ textarea.edit-input {
 /* Skills Section */
 .skills-section {
   margin: 1.5rem 0;
-}
-
-.skills-cloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 0.75rem 0;
-}
-
-.skill-badge {
-  background: linear-gradient(135deg, #3498db20, #8e44ad20);
-  color: #2c3e50;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  border: 1px solid rgba(52, 152, 219, 0.2);
-  transition: all 0.3s ease;
-}
-
-.skill-badge:hover {
-  transform: scale(1.1);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* Activity Section */
