@@ -1,0 +1,46 @@
+/**
+ * Error Boundary Component Styles
+ * Styles for the error display when components crash
+ */
+
+.error-boundary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    padding: 2rem;
+    text-align: center;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-boundary__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #dc3545;
+    margin-bottom: 1rem;
+}
+
+.error-boundary__message {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 2rem;
+    max-width: 400px;
+}
+
+.error-boundary__button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.error-boundary__button:hover {
+    background-color: #0056b3;
+} 

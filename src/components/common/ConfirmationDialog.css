@@ -1,0 +1,99 @@
+/**
+ * ConfirmationDialog Component Styles
+ * Styles for the modal dialog used to confirm user actions
+ */
+
+/* Overlay backdrop */
+.confirmation-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Dialog container */
+.confirmation-dialog {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+}
+
+/* Dialog title */
+.confirmation-dialog h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Dialog message */
+.confirmation-dialog p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+/* Buttons container */
+.confirmation-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.confirmation-dialog-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.confirmation-dialog-buttons button:focus {
+  outline: 2px solid var(--primary, #0088cc);
+  outline-offset: 2px;
+}
+
+.confirmation-dialog-buttons button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.cancel-button {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.cancel-button:hover {
+  background-color: #e2e2e2;
+}
+
+.cancel-button:focus-visible {
+  background-color: #e2e2e2;
+}
+
+.confirm-button {
+  background-color: #e74c3c;
+  color: white;
+  margin-left: 10px;
+}
+
+.confirm-button:hover {
+  background-color: #c0392b;
+}
+
+.confirm-button:focus-visible {
+  background-color: #c0392b;
+}
+
+/* Keyboard navigation indicator */
+.confirmation-dialog:focus-within {
+  box-shadow: 0 0 0 2px var(--primary, #0088cc), 0 5px 15px rgba(0, 0, 0, 0.3);
+} 

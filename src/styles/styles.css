@@ -1,0 +1,634 @@
+/**
+ * Global CSS Design System
+ * This file contains the application's design tokens, global styles,
+ * and reusable component styles.
+ * 
+ * Structure:
+ * 1. CSS Variables (Design Tokens)
+ * 2. Global Reset
+ * 3. Typography
+ * 4. Components
+ * 5. Utilities
+ * 6. Responsive Design
+ * 7. Accessibility
+ */
+
+@import './animations.css';
+
+/* Design Tokens - Light Mode (Default) */
+:root {
+  /* Colors */
+  --primary: #3a86ff;
+  --primary-dark: #2563eb;
+  --primary-light: #60a5fa;
+  
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --danger-dark: #dc2626;
+  --info: #3b82f6;
+  
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  
+  /* Semantic Colors */
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-700);
+  --text-tertiary: var(--gray-500);
+  --text-placeholder: var(--gray-400);
+  --text-disabled: var(--gray-300);
+  --text-inverse: white;
+  
+  --bg-primary: white;
+  --bg-secondary: var(--gray-50);
+  --bg-tertiary: var(--gray-100);
+  --bg-hover: var(--gray-100);
+  --bg-input: white;
+  
+  --border-light: var(--gray-200);
+  --border-medium: var(--gray-300);
+  --border-dark: var(--gray-400);
+  
+  /* Spacing */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.5rem;   /* 24px */
+  --space-6: 2rem;     /* 32px */
+  --space-8: 3rem;     /* 48px */
+  --space-10: 4rem;    /* 64px */
+  
+  /* Border Radius */
+  --radius-sm: 0.125rem;  /* 2px */
+  --radius-md: 0.375rem;  /* 6px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* Z-index layers */
+  --z-dropdown: 1000;
+  --z-modal: 1500;
+  --z-tooltip: 2000;
+  
+  /* Layout */
+  --bottom-nav-height: 60px;  /* Mobile bottom navbar height */
+}
+
+/* Dark Mode Colors */
+[data-theme="dark"] {
+  /* Colors - dark mode variants */
+  --primary: #60a5fa;
+  --primary-dark: #3b82f6;
+  --primary-light: #93c5fd;
+  
+  /* Semantic Colors */
+  --text-primary: #f9fafb;
+  --text-secondary: #e5e7eb;
+  --text-tertiary: #d1d5db;
+  --text-placeholder: #9ca3af;
+  --text-disabled: #6b7280;
+  --text-inverse: #111827;
+  
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-tertiary: #374151;
+  --bg-hover: #374151;
+  --bg-input: #1f2937;
+  
+  --border-light: #374151;
+  --border-medium: #4b5563;
+  --border-dark: #6b7280;
+  
+  /* Shadows with lower opacity for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  
+  /* Fix project titles visibility */
+  --project-title-color: #ffffff;
+  
+  /* Fix button contrast */
+  --button-text-color: #111827;
+  --button-bg-color: #60a5fa;
+  
+  /* Fix activity overview cards */
+  --card-bg-color: #1f2937;
+  --card-border-color: #374151;
+  --card-text-color: #f3f4f6;
+  --card-icon-color: #60a5fa;
+}
+
+/* Global Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.5em;
+  color: var(--text-primary);
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+h5 {
+  font-size: 1.125rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color var(--transition-normal);
+}
+
+a:hover {
+  color: var(--primary-dark);
+}
+
+/* Root containers */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.page-container {
+  padding: var(--space-6) 0;
+}
+
+/* Cards */
+.card {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-6);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  text-align: center;
+  transition: all var(--transition-normal);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: var(--gray-200);
+  color: var(--gray-800);
+}
+
+.btn-secondary:hover {
+  background-color: var(--gray-300);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: var(--danger-dark);
+}
+
+.btn-sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  padding: var(--space-3) var(--space-6);
+  font-size: 1.125rem;
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* Utilities */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-2 {
+  gap: var(--space-2);
+}
+
+.gap-4 {
+  gap: var(--space-4);
+}
+
+.gap-6 {
+  gap: var(--space-6);
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+/* Spacing Utilities */
+.m-2 { margin: var(--space-2); }
+.m-4 { margin: var(--space-4); }
+.mt-4 { margin-top: var(--space-4); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-8 { margin-bottom: var(--space-8); }
+
+.p-4 { padding: var(--space-4); }
+.py-2 { padding: var(--space-2) 0; }
+.px-4 { padding: 0 var(--space-4); }
+
+/* Main container with proper spacing */
+.main-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 80px auto 0;
+  min-height: calc(100vh - 80px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding: 0 var(--space-3);
+  }
+  
+  .page-container {
+    padding: var(--space-4) 0;
+  }
+  
+  .main-container {
+    margin: 60px auto var(--bottom-nav-height);
+    padding: 1.5rem 1rem 2rem;
+    min-height: calc(100vh - 60px - var(--bottom-nav-height));
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 12px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.75rem;
+  }
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Accessibility */
+.screen-reader-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Theme Transition */
+.transition-theme {
+  transition: background-color 0.3s ease,
+              color 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+/* Ensure content doesn't get hidden under fixed mobile navbar */
+.profile-page, 
+.feed-container, 
+.create-post-page, 
+.post-page,
+.settings-page,
+.notifications-page,
+.auth-container {
+  padding-bottom: 80px; /* Space for mobile navbar */
+}
+
+/* Dark Mode Toggle */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-normal);
+}
+
+.theme-toggle:hover {
+  background-color: var(--bg-hover);
+}
+
+.theme-toggle svg {
+  font-size: 1.25rem;
+  transition: transform var(--transition-normal);
+}
+
+.theme-toggle:hover svg {
+  transform: rotate(30deg);
+}
+
+/* Dark mode adjustments for common components */
+[data-theme="dark"] .card {
+  background-color: var(--bg-primary);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
+}
+
+[data-theme="dark"] .btn-secondary {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+  background-color: var(--border-medium);
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background-color: var(--bg-input);
+  border-color: var(--border-medium);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--text-placeholder);
+}
+
+[data-theme="dark"] .form-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+}
+
+/* Project Title Styling */
+.post-title, h2 {
+  color: var(--project-title-color, #1f2937);
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Read More Button Styling */
+.read-more-btn {
+  background-color: var(--button-bg-color, #3a86ff);
+  color: var(--button-text-color, white);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.read-more-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* Activity Overview Cards */
+.activity-card {
+  background-color: var(--card-bg-color, white);
+  border: 1px solid var(--card-border-color, var(--border-light));
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.activity-card h3 {
+  color: var(--card-text-color, var(--text-primary));
+  font-size: 1.25rem;
+  text-align: center;
+  margin-bottom: var(--space-3);
+}
+
+.activity-card p {
+  color: var(--card-text-color, var(--text-secondary));
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.activity-card svg,
+.activity-card .card-icon {
+  color: var(--card-icon-color, var(--primary));
+  font-size: 2rem;
+  margin-bottom: var(--space-3);
+}
+
+/* Mobile Theme Toggle */
+.theme-toggle-mobile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  text-align: left;
+  transition: background-color 0.2s ease;
+}
+
+.theme-toggle-mobile:hover {
+  background-color: var(--bg-hover);
+}
+
+.theme-toggle-mobile svg {
+  font-size: 1.1rem;
+}
+
+/* Dark theme - make post titles white with high specificity selectors */
+[data-theme="dark"] .post-title,
+[data-theme="dark"] h2.post-title,
+[data-theme="dark"] div.post-title,
+[data-theme="dark"] .post-title h2,
+[data-theme="dark"] .post-grid h2 {
+  color: #ffffff !important; /* Use !important to override inline styles */
+}
+
+/* Target the CSS custom property directly */
+[data-theme="dark"] {
+  --project-title-color: #ffffff !important;
+}
+
+/* Additional specific selector targeting what's in the screenshot */
+html[data-theme="dark"] .post-title,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] [class*="post-title"] {
+  color: #ffffff !important;
+}
+
+/* Override any inline styles by targeting the exact elements shown in devtools */
+[data-theme="dark"] h2.post-title,
+[data-theme="dark"] .post-title h2 {
+  color: #ffffff !important;
+} 

@@ -1,0 +1,142 @@
+/**
+ * CreatePost Component Styles
+ * Defines styles for the project creation form and its elements
+ */
+
+/* CSS Variables for consistent theming */
+:root {
+  --form-max-width: 800px;
+  --form-padding: 2rem;
+  --form-border-radius: 8px;
+  --input-border-radius: 4px;
+}
+
+/* Form Container */
+.create-form {
+  max-width: var(--form-max-width);
+  margin: 80px auto;
+  padding: var(--form-padding);
+  background: var(--bg-primary);
+  border-radius: var(--form-border-radius);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 80px; /* Add space for the mobile navbar */
+}
+
+/* Form Header */
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.form-title {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.form-subtitle {
+  color: var(--text-tertiary);
+  font-size: 1.1rem;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+/* Form Inputs */
+.input-title,
+.input-description,
+.input-github,
+.input-skills {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--input-border-radius);
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.input-title:focus,
+.input-description:focus,
+.input-github:focus,
+.input-skills:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-100);
+}
+
+.input-description {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Helper Text */
+.form-helper {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+}
+
+/* Error Messages */
+.error-message {
+  color: var(--danger);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Submit Button */
+.submit-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--input-border-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.submit-button:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+}
+
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .create-form {
+    margin: 80px 1rem 80px;
+    padding: 1rem;
+  }
+
+  .form-title {
+    font-size: 1.5rem;
+  }
+
+  .form-subtitle {
+    font-size: 1rem;
+  }
+}

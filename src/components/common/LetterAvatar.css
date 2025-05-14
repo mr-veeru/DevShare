@@ -1,0 +1,143 @@
+/**
+ * Letter Avatar Component Styles
+ * Defines styles for user avatar initials display
+ */
+
+/* Base avatar styles */
+.letter-avatar {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: all 0.25s ease;
+  color: #fff;
+  margin-right: var(--space-2, 8px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Avatar shapes and sizing */
+.letter-avatar.small {
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+  min-width: 32px; /* Prevent distortion */
+}
+
+.letter-avatar.medium {
+  width: 42px;
+  height: 42px;
+  font-size: 17px;
+  min-width: 42px; /* Prevent distortion */
+}
+
+.letter-avatar.large {
+  width: 72px;
+  height: 72px;
+  font-size: 28px;
+  min-width: 72px; /* Prevent distortion */
+  border-width: 3px;
+}
+
+/* Modern gradient color variants */
+.letter-avatar.color-0 {
+  background: linear-gradient(135deg, #4f46e5, #3730a3);
+}
+
+.letter-avatar.color-1 {
+  background: linear-gradient(135deg, #f43f5e, #be123c);
+}
+
+.letter-avatar.color-2 {
+  background: linear-gradient(135deg, #0ea5e9, #0369a1);
+}
+
+.letter-avatar.color-3 {
+  background: linear-gradient(135deg, #f59e0b, #b45309);
+}
+
+.letter-avatar.color-4 {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+}
+
+/* Subtle shine effect */
+.letter-avatar::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Specific positioning contexts */
+.post-header .letter-avatar {
+  margin-right: var(--space-3, 12px);
+}
+
+.comment-author .letter-avatar {
+  margin-right: var(--space-2, 8px);
+}
+
+/* Animation effect on hover */
+.letter-avatar:hover {
+  transform: scale(1.08);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Focus styles for keyboard navigation */
+.letter-avatar:focus,
+.letter-avatar:focus-visible {
+  outline: 2px solid var(--primary, #4f46e5);
+  outline-offset: 2px;
+  transform: scale(1.05);
+}
+
+/* Interactive avatar styling */
+.letter-avatar.interactive {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.letter-avatar.interactive:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.letter-avatar.interactive:active {
+  transform: scale(0.95);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .letter-avatar.medium {
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+    min-width: 38px;
+  }
+  
+  .letter-avatar.large {
+    width: 60px;
+    height: 60px;
+    font-size: 22px;
+    min-width: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .letter-avatar.small {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    min-width: 28px;
+  }
+} 
