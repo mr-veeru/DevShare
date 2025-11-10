@@ -1,0 +1,131 @@
+/**
+ * Toast Notification Styles
+ * 
+ * Styles for toast notifications including success, error, and info states.
+ * Features smooth animations and responsive design.
+ */
+ 
+.toast {
+  position: relative;
+  z-index: 9999;
+  min-width: 300px;
+  max-width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toast--visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast--hidden {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.toast__content {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  gap: 12px;
+}
+
+.toast__icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.toast__message {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: white;
+}
+
+.toast__close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast__close:hover {
+  color: white;
+  background: var(--bg-glass-light);
+}
+
+/* Success Toast */
+.toast--success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.toast--success .toast__icon {
+  background: var(--bg-glass-medium);
+  color: white;
+}
+
+/* Error Toast */
+.toast--error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.toast--error .toast__icon {
+  background: var(--bg-glass-medium);
+  color: white;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .toast {
+    min-width: auto;
+    max-width: none;
+  }
+  
+  .toast__content {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .toast__message {
+    font-size: 13px;
+  }
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .toast {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Animation for multiple toasts */
+.toast + .toast {
+  margin-top: 10px;
+}

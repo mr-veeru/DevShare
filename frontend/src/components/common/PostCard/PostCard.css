@@ -1,0 +1,447 @@
+/**
+ * PostCard Component Styles
+ * 
+ * Styles for individual post cards in the feed.
+ * Features dark theme with modern card design and interactive elements.
+ */
+
+/* ===== POST CARD ===== */
+.post-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
+  border: 1px solid var(--border-glass);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-color: var(--border-glass-hover);
+}
+
+/* ===== POST HEADER & AUTHOR ===== */
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.post-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.post-avatar-clickable {
+  cursor: pointer;
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.author-name {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.author-name.clickable {
+  cursor: pointer;
+}
+
+.post-date {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* ===== POST MENU ===== */
+.post-menu-container {
+  position: relative;
+}
+
+.post-menu {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.post-menu:hover {
+  color: var(--text-primary);
+  background: var(--bg-glass-light);
+}
+
+.post-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--card-bg-hover);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  padding: 0;
+  min-width: 140px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.menu-item:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.menu-item:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+.menu-item:hover {
+  background: var(--bg-glass);
+}
+
+.menu-item.delete {
+  color: #ef4444;
+  border-top: 1px solid var(--border-glass);
+}
+
+.menu-item.delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.menu-icon {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* ===== POST CONTENT ===== */
+.post-content {
+  margin-bottom: 20px;
+}
+
+.post-title {
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.post-description {
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.read-more-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.read-more-btn:hover {
+  color: #8b5cf6;
+}
+
+/* ===== TECH STACK ===== */
+.post-tech-stack {
+  margin-bottom: 16px;
+}
+
+.post-tech-stack .tech-label {
+  color: var(--primary-color);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.tech-tag {
+  background: var(--indigo-gradient);
+  color: var(--text-primary);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+[data-theme="light"] .tech-tag {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(139, 92, 246, 0.15));
+  color: #5a67d8;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+/* ===== POST FILES ===== */
+.post-files {
+  margin-bottom: 16px;
+}
+
+.files-label {
+  color: var(--primary-color);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 280px));
+  gap: 12px;
+  justify-content: start;
+}
+
+.file-item {
+  background: transparent;
+  border-radius: 12px;
+  padding: 0;
+  border: none;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.file-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.file-more {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.file-more:hover {
+  background: var(--card-bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-glass-hover);
+}
+
+/* ===== GITHUB LINK ===== */
+.post-github {
+  margin-bottom: 16px;
+}
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.github-link:hover {
+  color: #8b5cf6;
+}
+
+/* ===== POST ACTIONS ===== */
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-glass);
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.action-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-glass);
+}
+
+.action-icon {
+  font-size: 16px;
+}
+
+.share-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.share-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.share-option:hover {
+  background: var(--bg-glass-hover);
+}
+
+.share-icon {
+  font-size: 20px;
+}
+
+/* ===== INLINE EDITING CONTAINERS ===== */
+.post-edit-tech,
+.post-edit-github,
+.post-edit-files {
+  margin-bottom: 1rem;
+}
+
+/* ===== POST EDIT INPUT VARIANTS ===== */
+.post-edit-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.post-edit-description {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+.no-files-message {
+  padding: 12px 16px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.post-edit-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .post-card {
+    padding: 16px;
+  }
+
+  .post-title {
+    font-size: 18px;
+  }
+
+  .post-description {
+    font-size: 13px;
+  }
+
+  .post-actions {
+    gap: 12px;
+  }
+
+  .files-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .post-edit-title {
+    font-size: 1.25rem;
+  }
+  
+  .post-edit-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .post-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .post-menu-container {
+    flex-shrink: 0;
+  }
+
+  .post-menu {
+    padding: 6px;
+  }
+
+  .post-menu-dropdown {
+    right: 0;
+    left: auto;
+    min-width: 120px;
+    max-width: calc(100vw - 32px);
+  }
+
+  .post-actions {
+    gap: 8px;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}

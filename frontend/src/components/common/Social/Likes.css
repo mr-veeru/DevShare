@@ -1,0 +1,65 @@
+/**
+ * Likes Component Styles
+ * 
+ * Styles for the like/unlike functionality including heart icons,
+ * like count display, and likes modal.
+ */
+
+/* ===== LIKES CONTAINER ===== */
+.likes-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ===== BUTTONS (Shared Styles) ===== */
+.like-btn,
+.likes-count-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #a0a0a0;
+}
+
+.like-btn {
+  font-size: 18px;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.likes-count-btn {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* ===== BUTTON STATES ===== */
+.like-btn:hover:not(:disabled),
+.likes-count-btn:hover:not(:disabled) {
+  background: var(--bg-glass-light);
+  color: var(--text-primary);
+}
+
+.like-btn.liked {
+  color: #ef4444;
+}
+
+.like-btn.liked:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.like-btn.loading,
+.like-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.likes-count-btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+}

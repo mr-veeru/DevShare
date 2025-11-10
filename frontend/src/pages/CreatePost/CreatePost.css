@@ -1,0 +1,62 @@
+/**
+ * Create Post Page Styles
+ * 
+ * Specific styles for the create post page component.
+ * Common styles are imported from common.css
+ */
+
+@import '../../components/common/common.css';
+
+.create-post-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  overflow: visible;
+}
+
+.create-post-form {
+  background: var(--bg-glass);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--border-glass);
+  backdrop-filter: blur(10px);
+}
+
+.upload-btn .icon {
+  font-size: 20px;
+}
+
+/* ===== FORM ACTIONS ===== */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .create-post-container {
+    padding: 16px;
+  }
+  
+  .create-post-form {
+    padding: 20px;
+  }
+  
+  .form-actions {
+    justify-content: center;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .title-input,
+  .content-textarea,
+  .github-input {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+}

@@ -1,0 +1,57 @@
+/**
+ * Reply Component Styles
+ * 
+ * Styles for individual reply items in the comments section.
+ * Features user info, content display, and action buttons.
+ */
+.reply-item {
+  margin-top: 4px;
+}
+
+/* Ensure light theme has proper styling */
+[data-theme="light"] .reply-item {
+  background: transparent;
+}
+
+.reply-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reply-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.reply-username {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.reply-time {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.reply-content {
+  color: var(--text-primary);
+  margin-top: 6px;
+}
+
+.reply-footer {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.reply-edit {
+  margin-top: 6px;
+}
+
+.reply-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}

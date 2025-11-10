@@ -1,0 +1,87 @@
+/**
+ * Theme Toggle Component Styles
+ */
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.theme-toggle:hover {
+  background: var(--bg-glass-hover);
+  transform: scale(1.05);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+.theme-icon {
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+/* For auth pages - positioned top right */
+.auth-container .theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+/* For navbar - inline with other items */
+.navbar-items .theme-toggle {
+  width: 36px;
+  height: 36px;
+  margin-left: 8px;
+}
+
+/* Mobile navbar */
+.navbar-mobile-container .theme-toggle {
+  width: auto;
+  height: auto;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border-radius: 0;
+  flex: 1;
+}
+
+.navbar-mobile-container .theme-toggle .theme-icon {
+  font-size: 1.25rem;
+}
+
+.navbar-mobile-container .theme-toggle:hover {
+  background: none;
+  transform: none;
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .auth-container .theme-toggle {
+    top: 15px;
+    right: 15px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .theme-icon {
+    font-size: 16px;
+  }
+}
+
+

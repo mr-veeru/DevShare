@@ -1,0 +1,88 @@
+/**
+ * LetterAvatar Component Styles
+ * 
+ * Styles for the LetterAvatar component with different sizes and responsive design.
+ * Features gradient backgrounds and smooth transitions.
+ */
+
+.letter-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.letter-avatar:hover {
+  transform: scale(1.05);
+}
+
+.letter-avatar__initial {
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Size variants */
+.letter-avatar--small {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+.letter-avatar--medium {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+
+.letter-avatar--large {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .letter-avatar--small {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+  
+  .letter-avatar--medium {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  
+  .letter-avatar--large {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .letter-avatar--small {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+  }
+  
+  .letter-avatar--medium {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+  
+  .letter-avatar--large {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+  
+}
+

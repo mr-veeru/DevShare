@@ -1,0 +1,317 @@
+/**
+ * Feed Page Styles
+ * 
+ * Specific styles for the feed page component.
+ * Common styles are imported from common.css
+ */
+
+@import '../../components/common/common.css';
+
+/* ===== SEARCH & FILTER CONTAINERS ===== */
+.search-container,
+.filter-container {
+  margin: 0 0 1rem 0;
+}
+
+.search-container {
+  padding: 10px 0;
+}
+
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+.search-input {
+  width: 100%;
+  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-lg) 52px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  font-size: var(--spacing-lg);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Search Controls */
+.search-clear-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.search-clear-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-glass-light);
+}
+
+/* Search Results */
+.search-results-info {
+  text-align: center;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--card-bg-light);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+}
+
+.search-count {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.search-query {
+  color: #a0a0a0;
+  font-size: 13px;
+  margin-left: 8px;
+}
+
+/* Search Navigation */
+.search-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.search-nav-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--border-glass);
+  color: var(--text-secondary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: var(--spacing-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.search-nav-btn:hover:not(:disabled) {
+  background: rgba(102, 126, 234, 0.2);
+  color: var(--primary-color);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.search-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.search-occurrence-info {
+  color: var(--primary-color);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 8px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 4px;
+}
+
+.search-clear-icon,
+.search-nav-icon {
+  font-size: 12px;
+}
+
+.filter-container {
+  padding: 5px 0 15px 0;
+}
+
+.filter-tags {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  justify-content: flex-start;
+  overflow-x: auto;
+  padding: 8px 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.filter-tags::-webkit-scrollbar {
+  height: 6px;
+}
+
+.filter-tags::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.filter-tags::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.filter-tags::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.filter-tag {
+  background: var(--card-bg);
+  border: 1px solid var(--border-glass);
+  color: var(--text-secondary);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-2xl);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.filter-tag:hover {
+  background: rgba(40, 40, 60, 0.8);
+  color: var(--text-primary);
+  border-color: var(--border-glass-hover);
+}
+
+.filter-tag.active {
+  color: var(--text-primary);
+  border-color: transparent;
+}
+
+/* ===== POSTS CONTAINER ===== */
+.posts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ===== SEARCH HIGHLIGHTING ===== */
+.search-highlight {
+  background: var(--indigo-gradient);
+  color: var(--text-primary);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.search-highlight-active {
+  background: linear-gradient(135deg, #f59e0b, #f97316) !important;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+  animation: searchPulse 2s ease-in-out;
+}
+
+/* ===== FEED SPECIFIC RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .search-container {
+    padding: 5px 0;
+  }
+  
+  .filter-container {
+    padding: 5px 0 10px 0;
+  }
+  
+  .search-input {
+    padding: 10px 14px 10px 44px;
+    font-size: 13px;
+  }
+  
+  .search-icon {
+    left: 14px;
+    font-size: 14px;
+  }
+  
+  .filter-tags {
+    gap: 6px;
+    padding: 6px 0;
+  }
+  
+  .filter-tag {
+    padding: 6px 12px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  
+  .posts-container {
+    gap: 16px;
+  }
+}
+
+.loading-more-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 12px;
+}
+
+.loading-more-indicator p {
+  color: #a0a0a0;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ===== SCROLL TO TOP BUTTON ===== */
+.scroll-to-top-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  background: var(--card-bg);
+  border: 1px solid #ffff;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scroll-to-top-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scroll-to-top-btn:hover {
+  background: var(--card-bg-hover);
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .scroll-to-top-btn {
+    bottom: 100px;
+    right: 16px;
+  }
+}

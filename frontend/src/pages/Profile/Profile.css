@@ -1,0 +1,373 @@
+/**
+ * Profile Page Styles
+ * 
+ * Specific styles for the profile page component.
+ * Common styles are imported from common.css
+ */
+
+@import '../../components/common/common.css';
+
+/* ===== PROFILE CONTAINER ===== */
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* ===== PROFILE HEADER ===== */
+.profile-header {
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-glass);
+}
+
+.profile-content-wrapper {
+  padding: 2rem;
+}
+
+/* ===== PROFILE LAYOUT - TWO COLUMN SPLIT ===== */
+.profile-header-section {
+  display: flex;
+  gap: 3rem;
+  padding: 2rem 0;
+  align-items: flex-start;
+}
+
+/* Left Side: Avatar, Username, Edit Button */
+.profile-left-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.profile-actions-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ===== PROFILE ACTION BUTTONS ===== */
+.profile-action-btn {
+  padding: 8px 20px;
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-glass);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.profile-action-btn:hover:not(:disabled) {
+  background: var(--card-bg);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+}
+
+.profile-action-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.profile-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.profile-left-section .letter-avatar {
+  width: 120px !important;
+  height: 120px !important;
+  font-size: 3rem !important;
+}
+
+.profile-username {
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin: 0;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+/* Right Side: Stats and Details */
+.profile-right-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.profile-stats-row {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.profile-details-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ===== PROFILE DETAILS ===== */
+.profile-fullname {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.profile-bio {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-style: italic;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--primary-color);
+  background: var(--bg-glass);
+  border-radius: 4px;
+}
+
+.profile-join-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.profile-icon {
+  font-size: 0.9rem;
+  color: var(--primary-color);
+}
+
+/* ===== STATS ===== */
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+  text-transform: lowercase;
+}
+
+/* ===== POSTS SECTION ===== */
+.profile-posts-section {
+  margin-bottom: 2rem;
+}
+
+.posts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.posts-title-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.posts-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.posts-icon {
+  font-size: 1.25rem;
+  color: var(--primary-color);
+}
+
+.posts-count {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  background: var(--bg-glass);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-glass);
+}
+
+/* ===== CREATE POST BUTTON ===== */
+.create-post-btn {
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.no-posts h4 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  margin: 0;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 1rem;
+  }
+
+  .profile-content-wrapper {
+    padding: 1.5rem;
+  }
+
+  .profile-header-section {
+    flex-direction: row;
+    gap: 2rem;
+    padding: 1.5rem 0;
+    align-items: flex-start;
+  }
+
+  .profile-left-section {
+    flex-shrink: 0;
+    align-items: center;
+  }
+
+  .profile-left-section .letter-avatar {
+    width: 100px !important;
+    height: 100px !important;
+    font-size: 2.5rem !important;
+  }
+
+  .profile-username {
+    font-size: 1.25rem;
+  }
+
+  .profile-actions-row {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .profile-action-btn {
+    width: 100%;
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  .profile-right-section {
+    flex: 1;
+    align-items: flex-start;
+  }
+
+  .profile-stats-row { 
+    gap: 0.75rem; 
+  }
+
+  .stat-number {
+    font-size: 1.75rem;
+  }
+
+  .profile-details-info {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .profile-fullname,
+  .profile-bio {
+    text-align: left;
+  }
+  
+  .posts-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .posts-title-section {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .posts-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 0.5rem;
+  }
+
+  .profile-content-wrapper {
+    padding: 1rem;
+  }
+
+  .profile-header-section {
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+  }
+
+  .profile-left-section .letter-avatar {
+    width: 90px !important;
+    height: 90px !important;
+    font-size: 2.25rem !important;
+  }
+
+  .profile-username {
+    font-size: 1.1rem;
+  }
+
+  .profile-actions-row { 
+    width: 100%; 
+  }
+
+  .profile-action-btn {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .profile-stats-row { 
+    gap: 0.5rem; 
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+  }
+}

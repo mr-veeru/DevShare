@@ -1,0 +1,393 @@
+/**
+ * Navigation Bar Styles
+ * 
+ * Professional responsive navigation with desktop and mobile layouts.
+ * Features dark theme, glass-morphism effects, and smooth animations.
+ */
+
+/* ===== DESKTOP NAVBAR ===== */
+.navbar-desktop,
+.navbar-mobile {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--card-bg-hover);
+  backdrop-filter: blur(10px);
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.navbar-desktop {
+  top: 0;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  height: 64px;
+}
+
+/* ===== LOGO ===== */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.navbar-logo:hover {
+  opacity: 0.8;
+}
+
+.logo-icon {
+  font-size: 1.5rem;
+  color: #667eea;
+  font-weight: bold;
+}
+ 
+.logo-text {
+   font-size: 1.5rem;
+   font-weight: 700;
+   color: var(--text-primary);
+}
+ 
+ /** Navigation Items */
+.navbar-items {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex: 1;
+  margin-left: 2rem;
+}
+ 
+/** navbar-item */
+.navbar-item {
+   display: flex;
+   align-items: center;
+   gap: 0.5rem;
+   padding: 0.75rem 1rem;
+   background: none;
+   border: none;
+   border-radius: 8px;
+   color: var(--text-primary);
+   font-size: 1rem;
+   font-weight: 500;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   position: relative;
+}
+ 
+/** navbar-item:hover */
+.navbar-item:hover {
+   background: var(--bg-glass);
+}
+ 
+.navbar-item.active {
+   color: #667eea;
+}
+ 
+/* Shared icon styles */
+.navbar-icon,
+.navbar-mobile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.navbar-icon {
+  font-size: 1.15rem;
+}
+ 
+.navbar-label {
+  font-size: 0.95rem;
+}
+
+/* ===== MOBILE NAVBAR ===== */
+.navbar-mobile {
+   bottom: 0;
+   border-top: 1px solid var(--border-glass);
+   display: none;
+}
+ 
+.navbar-mobile-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  align-items: center;
+  justify-items: center;
+  padding: 0.5rem 0;
+  max-width: 100%;
+}
+ 
+.navbar-mobile-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+   padding: 0.5rem;
+   background: none;
+   border: none;
+   color: var(--text-secondary);
+   font-size: 0.75rem;
+   font-weight: 500;
+   cursor: pointer;
+   transition: all 0.2s ease;
+   flex: 1;
+   position: relative;
+}
+ 
+.navbar-mobile-item:hover {
+   color: var(--text-primary);
+}
+ 
+.navbar-mobile-item.active {
+   color: #667eea;
+}
+ 
+.navbar-item.active .navbar-icon,
+.navbar-mobile-item.active .navbar-mobile-icon {
+   color: #667eea;
+}
+ 
+.mobile-icon-container {
+   position: relative;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+ 
+.navbar-mobile-icon {
+   font-size: 1.25rem;
+}
+ 
+.navbar-mobile-label {
+   font-size: 0.7rem;
+   text-align: center;
+}
+ 
+ /* ===== PROFILE SECTION ===== */
+.profile-section {
+   position: relative;
+   margin-left: 1rem;
+}
+ 
+.profile-avatar-btn {
+   background: none;
+   border: none;
+   cursor: pointer;
+   padding: 0;
+   border-radius: 50%;
+   transition: transform 0.2s ease;
+}
+ 
+.profile-avatar-btn:hover {
+   transform: scale(1.05);
+}
+ 
+ .profile-avatar {
+   transition: all 0.2s ease;
+}
+ 
+/* Profile Dropdown */
+.profile-dropdown,
+.mobile-profile-dropdown {
+  position: absolute;
+  right: 0;
+  background: var(--card-bg-hover);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 200px;
+  z-index: 1001;
+}
+
+.profile-dropdown {
+  top: calc(100% + 8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-profile-dropdown {
+  bottom: calc(100% + 8px);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+}
+ 
+ .profile-info {
+   margin-bottom: 12px;
+ }
+ 
+ .profile-name {
+   color: var(--text-primary);
+   font-weight: 600;
+   font-size: 16px;
+   margin-bottom: 4px;
+ }
+ 
+ .profile-email {
+   color: var(--text-secondary);
+   font-size: 14px;
+ }
+ 
+ .dropdown-divider {
+   height: 1px;
+   background: var(--border-glass);
+   margin: 12px 0;
+ }
+ 
+ .dropdown-menu {
+   display: flex;
+   flex-direction: column;
+   gap: 4px;
+ }
+ 
+ .dropdown-item {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   padding: 8px 12px;
+   background: none;
+   border: none;
+   color: var(--text-primary);
+   cursor: pointer;
+   border-radius: 8px;
+   transition: all 0.2s ease;
+   font-size: 14px;
+   text-align: left;
+   width: 100%;
+}
+ 
+ .dropdown-item:hover {
+   background: var(--bg-glass-light);
+   color: var(--text-primary);
+ }
+ 
+ .dropdown-item.logout-item {
+   color: #ef4444;
+ }
+ 
+ .dropdown-item.logout-item:hover {
+   background: rgba(239, 68, 68, 0.1);
+   color: #f87171;
+ }
+ 
+ .dropdown-icon {
+   font-size: 16px;
+   width: 20px;
+   text-align: center;
+ }
+ 
+ /* ===== MOBILE PROFILE SECTION ===== */
+.mobile-profile-section {
+  position: relative;
+  justify-self: center;
+}
+
+.profile-avatar,
+.mobile-profile-avatar {
+  transition: all 0.2s ease;
+}
+ 
+/* ===== NAVBAR SPECIFIC RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .navbar-desktop {
+    display: none;
+  }
+  
+  .navbar-mobile {
+    display: block;
+  }
+  .navbar-container {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-mobile-container {
+    padding: 0.25rem 0;
+  }
+  
+  .navbar-mobile-item {
+    padding: 0.4rem 0.2rem;
+  }
+  
+  .navbar-mobile-icon {
+    font-size: 1.1rem;
+  }
+  
+  .navbar-mobile-label {
+    font-size: 0.65rem;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+.navbar-item:focus,
+.navbar-mobile-item:focus,
+.profile-avatar-btn:focus,
+.dropdown-item:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* ===== BADGES ===== */
+.badge.badge-dot {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ff4d4f;
+  color: white;
+  border-radius: 9px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.95);
+  z-index: 1;
+}
+
+/* ===== SMOOTH TRANSITIONS ===== */
+.navbar-item,
+.navbar-mobile-item,
+.profile-avatar-btn,
+.dropdown-item {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== LOADING STATES ===== */
+.navbar-item:disabled,
+.navbar-mobile-item:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== HIGH CONTRAST MODE ===== */
+@media (prefers-contrast: high) {
+  .navbar-desktop,
+  .navbar-mobile {
+    background: rgba(0, 0, 0, 0.98);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  .navbar-item,
+  .navbar-mobile-item {
+    color: var(--text-primary);
+  }
+  
+  .navbar-item.active,
+  .navbar-mobile-item.active {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+  }
+}

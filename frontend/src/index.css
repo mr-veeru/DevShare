@@ -1,0 +1,161 @@
+/**
+ * Global Styles for DevSharee Frontend
+ * 
+ * Contains all global CSS styles including:
+ * - CSS reset and base styles
+ * - Typography and font settings
+ * - Background gradients and themes
+ * - Root container styling
+ */
+
+/* Base CSS variables - default to dark theme */
+:root {
+  /* Common spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+  
+  /* Common border radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  
+  /* Primary color */
+  --primary-color: #667eea;
+}
+
+/* Dark Theme (default) */
+[data-theme="dark"] {
+  --bg-gradient: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --indigo-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+  
+  /* Common background colors */
+  --bg-glass: rgba(255, 255, 255, 0.05);
+  --bg-glass-hover: rgba(255, 255, 255, 0.08);
+  --bg-glass-light: rgba(255, 255, 255, 0.1);
+  --bg-glass-medium: rgba(255, 255, 255, 0.2);
+  
+  /* Card backgrounds */
+  --card-bg: rgba(25, 25, 45, 0.8);
+  --card-bg-hover: rgba(25, 25, 45, 0.95);
+  --card-bg-light: rgba(25, 25, 45, 0.6);
+  
+  /* Common border colors */
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --border-glass-hover: rgba(255, 255, 255, 0.2);
+  
+  /* Common text colors */
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #dde4eb 100%);
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --indigo-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+  
+  /* Common background colors */
+  --bg-glass: rgba(0, 0, 0, 0.05);
+  --bg-glass-hover: rgba(0, 0, 0, 0.08);
+  --bg-glass-light: rgba(0, 0, 0, 0.1);
+  --bg-glass-medium: rgba(0, 0, 0, 0.15);
+  
+  /* Card backgrounds */
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-bg-hover: rgba(255, 255, 255, 0.95);
+  --card-bg-light: rgba(255, 255, 255, 0.7);
+  
+  /* Common border colors */
+  --border-glass: rgba(0, 0, 0, 0.1);
+  --border-glass-hover: rgba(0, 0, 0, 0.2);
+  
+  /* Common text colors */
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a5568;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-gradient);
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: hidden; /* Prevent body scrollbar */
+}
+
+/* Root container for React app */
+#root {
+  height: 100vh;
+  overflow: hidden; /* Prevent root scrollbar */
+}
+
+/* Main app container */
+.app {
+  height: 100vh;
+  width: 100%;
+  overflow: hidden; /* Prevent app scrollbar */
+}
+
+.app:not(.main-app) {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.app:not(.main-app)::-webkit-scrollbar {
+  display: none;
+}
+
+/* Main app with navbar - add top padding for desktop navbar */
+.app.main-app {
+  padding-top: 80px; /* desktop navbar height */
+  height: 100vh;
+  box-sizing: border-box; /* Include padding in height calculation */
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.app.main-app::-webkit-scrollbar {
+  display: none;
+}
+
+/* Toast container positioning */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.toast-container > * {
+  pointer-events: auto;
+}
+
+/* Adjust spacing for mobile bottom navbar */
+@media (max-width: 768px) {
+  /* Only apply bottom padding when navbar is present */
+  .app.main-app {
+    padding-top: 0;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)); /* mobile navbar height + safe area */
+    height: 100vh; /* Ensure full height on mobile */
+    box-sizing: border-box;
+  }
+  
+  .toast-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+  }
+}
